@@ -22,7 +22,7 @@ jobs:
         run: |
           yagna --version
           ya-provider --version
-          golemsp setup --nointeractive
+          golemsp setup --no-interactive
           ya-provider exe-unit list --json
       
 
