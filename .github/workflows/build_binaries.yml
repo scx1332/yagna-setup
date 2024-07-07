@@ -63,7 +63,7 @@ jobs:
           name: binaries_yagna.tar.gz
 
   test:
-    needs: [build, build-yagna]
+    needs: [build-runtime-vm, build-yagna]
     timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
