@@ -26,7 +26,6 @@ jobs:
         run: |
           yagna --version
           ya-provider --version
-          golemsp setup --no-interactive
           ya-provider exe-unit list --json
         env:
           YA_CONSENT_INTERNAL: "allow"
@@ -40,6 +39,7 @@ jobs:
         run: |
           sudo chown $USER /dev/kvm 
           cd golem/provider
+          golemsp setup --no-interactive
           yagna service run&
           sleep 10
           ya-provider run
