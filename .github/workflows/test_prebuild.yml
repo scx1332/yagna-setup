@@ -24,5 +24,7 @@ jobs:
           ya-provider --version
           golemsp setup --no-interactive
           ya-provider exe-unit list --json
-      
+        env:
+          YA_CONSENT_INTERNAL: "allow"
+          YA_CONSENT_EXTERNAL: "allow"
 
