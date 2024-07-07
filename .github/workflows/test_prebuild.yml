@@ -52,3 +52,6 @@ jobs:
         run: |
           cd golem/requestor
           yagna service run
+        env:
+          YA_CONSENT_INTERNAL: "allow"
+          YA_CONSENT_EXTERNAL: "allow"
