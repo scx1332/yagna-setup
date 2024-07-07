@@ -44,6 +44,29 @@ jobs:
         name: binaries.tar.gz
         path: binaries.tar.gz
 
+  build-self-test-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build gvmkit-rs
+        run: |
+          /bin/bash build_gvmkit_rs.sh
+
+      - name: Build self test image
+        run: |
+          /bin/bash build_self_test_image.sh
+
+      - name: Compress binaries
+        run: |
+          tar -czf binaries_self.tar.gz golem/binaries
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: binaries_self.tar.gz
+          path: binaries_self.tar.gz
+
   build-yagna:
     name: Build yagna binaries (x86-64)
     env:
@@ -80,7 +103,7 @@ jobs:
           path: binaries_yagna.tar.gz
 
   test:
-    needs: [build-runtime-vm, build-yagna]
+    needs: [build-runtime-vm, build-yagna, build-self-test-image]
     timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
@@ -89,20 +112,26 @@ jobs:
       - name: Install Poetry
         run: curl -sSL https://install.python-poetry.org | python3 - --version 1.8.2
 
-      - name: Download tar
+      - name: Download vm build
         uses: actions/download-artifact@v4
         with:
           name: binaries.tar.gz
 
-      - name: Download tar
+      - name: Download yagna build
         uses: actions/download-artifact@v4
         with:
           name: binaries_yanga.tar.gz
 
-      - name: Extract into downloaded
+      - name: Download self image build
+        uses: actions/download-artifact@v4
+        with:
+          name: binaries_self.tar.gz
+
+      - name: Extract all build files into downloaded
         run: |
           tar -xzf binaries.tar.gz
           tar -xzf binaries_yagna.tar.gz
+          tar -xzf binaries_self.tar.gz
           mv golem/binaries golem/downloaded
 
       - name: Install binaries
