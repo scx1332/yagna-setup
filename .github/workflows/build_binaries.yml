@@ -17,21 +17,17 @@ jobs:
         sudo apt-get update
         sudo apt-get install musl-tools autoconf libtool gperf -y
 
-    - name: Clone repositories
+    - name: Clone ya-runtime-vm
       run: |
-        /bin/bash prepare.sh
+        mkdir golem
+        cd golem
+        git lfs install
+        git clone https://github.com/golemfactory/ya-runtime-vm.git
+        (cd ya-runtime-vm && git submodule update --init --recursive)
 
     - name: Build runtime vm
       run: |
         /bin/bash build_runtime_vm.sh
-
-    - name: Build gvmkit-rs
-      run: |
-        /bin/bash build_gvmkit_rs.sh
-
-    - name: Build self test image
-      run: |
-        /bin/bash build_self_test_image.sh
 
     - name: Compress binaries
       run: |
