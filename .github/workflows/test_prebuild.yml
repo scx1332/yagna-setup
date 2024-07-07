@@ -20,7 +20,7 @@ jobs:
         run: |
           /bin/bash download_binaries.sh
           mkdir -p ~/.local/lib/yagna
-          mv golem/downloaded/plugins ~/.local/lib/yagna/plugins
+          mv golem/downloaded/plugins .
           sudo mv golem/downloaded/* /usr/bin/
 
       - name: Test binaries
