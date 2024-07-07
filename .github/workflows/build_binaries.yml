@@ -131,8 +131,10 @@ jobs:
 
       - name: Strip binaries
         run: |
-          strip -x golem/binaries/*
-          strip -x golem/binaries/plugins/*
+          strip -x golem/binaries/gftp
+          strip -x golem/binaries/ya-provider
+          strip -x golem/binaries/golemsp
+          strip -x golem/binaries/plugins/exe-unit
 
       - name: Compress binaries
         run: |
