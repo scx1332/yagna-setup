@@ -88,7 +88,10 @@ jobs:
 
       - name: Build all
         run: |
-          /bin/bash build_yagna_debug.sh
+          cd golem/yagna
+          cargo build
+          mkdir -p ../binaries
+          cp target/debug/yagna ../binaries/
 
       - name: Strip binaries
         run: |
@@ -103,6 +106,51 @@ jobs:
         with:
           name: binaries_yagna.tar.gz
           path: binaries_yagna.tar.gz
+
+  build-yagna-tools:
+    name: Build yagna binaries (x86-64)
+    env:
+      RUSTFLAGS: ${{ '-C opt-level=z -C target-cpu=x86-64 -C debuginfo=1' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Additional dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install musl-tools autoconf libtool gperf -y
+
+      - name: Clone repositories
+        run: |
+          /bin/bash prepare.sh
+
+      - name: Build all
+        run: |
+          cd golem/yagna
+          cargo build -p gftp
+          cargo build -p exe-unit
+          cargo build -p ya-provider
+          cargo build -p golemsp
+          mkdir -p ../binaries/plugins
+          cp target/debug/gftp ../binaries/
+          cp target/debug/ya-provider ../binaries/
+          cp target/debug/golemsp ../binaries/
+          cp target/debug/exe-unit ../binaries/plugins/
+
+      - name: Strip binaries
+        run: |
+          strip -x golem/binaries/*
+          strip -x golem/binaries/plugins/*
+
+      - name: Compress binaries
+        run: |
+          tar -czf binaries_yagna_tools.tar.gz golem/binaries
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: binaries_yagna_tools.tar.gz
+          path: binaries_yagna_tools.tar.gz
 
   test:
     needs: [build-runtime-vm, build-yagna, build-self-test-image]
@@ -124,6 +172,11 @@ jobs:
         with:
           name: binaries_yanga.tar.gz
 
+      - name: Download yagna tools build
+        uses: actions/download-artifact@v4
+        with:
+          name: binaries_yanga_tools.tar.gz
+
       - name: Download self image build
         uses: actions/download-artifact@v4
         with:
@@ -133,6 +186,7 @@ jobs:
         run: |
           tar -xzf binaries.tar.gz
           tar -xzf binaries_yagna.tar.gz
+          tar -xzf binaries_yagna_tools.tar.gz
           tar -xzf binaries_self.tar.gz
           mv golem/binaries golem/downloaded
 
