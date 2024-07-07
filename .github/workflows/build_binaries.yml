@@ -218,6 +218,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: binaries.tar.xz
+          path: binaries.tar.xz
 
       - name: Remove artfact
         run: |
