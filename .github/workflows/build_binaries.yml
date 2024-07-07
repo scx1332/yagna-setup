@@ -153,7 +153,7 @@ jobs:
           path: binaries_yagna_tools.tar.gz
 
   test:
-    needs: [build-runtime-vm, build-yagna, build-self-test-image]
+    needs: [build-runtime-vm, build-yagna, build-self-test-image, build-yagna-tools]
     timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
