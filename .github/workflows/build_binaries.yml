@@ -7,6 +7,7 @@ on:
 
 jobs:
   build-runtime-vm:
+    name: Build runtime vm
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -43,6 +44,7 @@ jobs:
         path: binaries.tar.gz
 
   build-self-test-image:
+    name: Build gvmkit-build and test image
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -70,7 +72,7 @@ jobs:
           path: binaries_self.tar.gz
 
   build-yagna:
-    name: Build yagna binaries (x86-64)
+    name: Build yagna main binary
     env:
       RUSTFLAGS: ${{ '-C opt-level=z -C target-cpu=x86-64 -C debuginfo=1' }}
     runs-on: ubuntu-latest
@@ -108,7 +110,7 @@ jobs:
           path: binaries_yagna.tar.gz
 
   build-yagna-tools:
-    name: Build yagna binaries (x86-64)
+    name: Build yagna tools (exe-unit, gftp, ya-provider, golemsp)
     env:
       RUSTFLAGS: ${{ '-C opt-level=z -C target-cpu=x86-64 -C debuginfo=1' }}
     runs-on: ubuntu-latest
@@ -153,6 +155,7 @@ jobs:
           path: binaries_yagna_tools.tar.gz
 
   test:
+    name: Test all together using yapapi blender example
     needs: [build-runtime-vm, build-yagna, build-self-test-image, build-yagna-tools]
     timeout-minutes: 10
     runs-on: ubuntu-latest
