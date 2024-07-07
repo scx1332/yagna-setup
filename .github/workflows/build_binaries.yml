@@ -154,9 +154,40 @@ jobs:
           name: binaries_yagna_tools.tar.gz
           path: binaries_yagna_tools.tar.gz
 
+  build-central-router:
+    name: Build central-net router (ya-sb-router)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Clone repositories
+        run: |
+          /bin/bash prepare.sh
+
+      - name: Build ya-sb-router
+        run: |
+          cd golem/central-net
+          cargo build --release -p ya-sb-router --features "bin"
+          mkdir -p ../binaries
+          cp target/release/ya-sb-router ../binaries/
+
+      - name: Strip binaries
+        run: |
+          strip -x golem/binaries/*
+
+      - name: Compress binaries
+        run: |
+          tar -czf binaries_yagna_tools.tar.gz golem/binaries
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: binaries_router.tar.gz
+          path: binaries_router.tar.gz
+
   test:
     name: Test all together using yapapi blender example
-    needs: [build-runtime-vm, build-yagna, build-self-test-image, build-yagna-tools]
+    needs: [build-runtime-vm, build-yagna, build-self-test-image, build-yagna-tools, build-central-router]
     timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
@@ -185,12 +216,18 @@ jobs:
         with:
           name: binaries_self.tar.gz
 
+      - name: Download router build
+        uses: actions/download-artifact@v4
+        with:
+          name: binaries_router.tar.gz
+
       - name: Extract all build files into downloaded
         run: |
           tar -xzf binaries.tar.gz
           tar -xzf binaries_yagna.tar.gz
           tar -xzf binaries_yagna_tools.tar.gz
           tar -xzf binaries_self.tar.gz
+          tar -xzf binaries_router.tar.gz
           mv golem/binaries golem/downloaded
 
       - name: Install binaries
