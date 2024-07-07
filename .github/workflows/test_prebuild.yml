@@ -22,6 +22,6 @@ jobs:
         run: |
           yagna --version
           ya-provider --version
-          ya-provider exe-unit list
+          ya-provider exe-unit list --json
       
 
