@@ -28,5 +28,8 @@ git clone https://github.com/golemfactory/ya-service-bus.git
 # clone ya-relay
 git clone https://github.com/golemfactory/ya-relay.git
 
+# clone ya-runtime-rs
+git clone https://github.com/golemfactory/gvmkit-build-rs.git
+
 # clone yagna
 git clone https://github.com/golemfactory/yagna.git
