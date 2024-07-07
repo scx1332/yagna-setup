@@ -14,8 +14,8 @@ jobs:
       - name: Download and install binaries
         run: |
           /bin/bash download_binaries.sh
-          mkdir -p ~/.local/lib/yagna
-          mv golem/downloaded/plugins .
+          sudo mkdir -p /usr/lib/yagna
+          sudo mv golem/downloaded/plugins /usr/lib/yagna/plugins
           sudo mv golem/downloaded/* /usr/bin/
 
       - name: Test binaries
