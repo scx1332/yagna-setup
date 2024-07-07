@@ -38,6 +38,7 @@ jobs:
 
       - name: Run provider
         run: |
+          sudo chown $USER /dev/kvm 
           cd golem/provider
           yagna service run&
           sleep 10
