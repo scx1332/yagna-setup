@@ -130,7 +130,7 @@ jobs:
         run: |
           cd golem/yagna
           cargo build -p gftp
-          cargo build -p exe-unit
+          cargo build -p ya-exe-unit
           cargo build -p ya-provider
           cargo build -p golemsp
           mkdir -p ../binaries/plugins
