@@ -195,6 +195,7 @@ jobs:
         with:
           path: binaries
           pattern: binaries*.tar.gz
+          merge-multiple: true
 
       - name: Extract all build files into downloaded
         run: |
