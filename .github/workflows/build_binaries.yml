@@ -20,10 +20,16 @@ jobs:
       run: |
         /bin/bash prepare.sh
 
-    - name: Build all
+    - name: Build gvmkit-rs
       run: |
         /bin/bash build_gvmkit_rs.sh
+
+    - name: Build self test image
+      run: |
         /bin/bash build_self_test_image.sh
+
+    - name: Build runtime vm
+      run: |
         /bin/bash build_runtime_vm.sh
 
     - name: Compress binaries
