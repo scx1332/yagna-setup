@@ -15,10 +15,6 @@ jobs:
       - name: Install Poetry
         run: curl -sSL https://install.python-poetry.org | python3 - --version 1.8.2
 
-      - name: Clone repositories
-        run: |
-          /bin/bash prepare.sh
-
       - name: Download and install binaries
         run: |
           /bin/bash download_binaries.sh
@@ -51,8 +47,6 @@ jobs:
         run: |
           cd golem/requestor
           yagna service run&
-          sleep 10
-        
 
       - name: Run provider
         run: |
@@ -60,9 +54,9 @@ jobs:
           cd golem/provider
           golemsp setup --no-interactive
           yagna service run&
-          sleep 10
+          sleep 6
           ya-provider run&
-          sleep 5
+          sleep 4
         env:
           YA_CONSENT_INTERNAL: "allow"
           YA_CONSENT_EXTERNAL: "allow"
@@ -84,7 +78,8 @@ jobs:
 
       - name: Prepare yapapi test
         run: |
-          cd golem/yapapi
+          git clone https://github.com/golemfactory/yapapi.git
+          cd yapapi
           poetry install
           poetry run python examples/blender/blender.py --payment-network holesky
         env:
