@@ -42,11 +42,17 @@ jobs:
         run: |
           /bin/bash prepare_runtime.sh
 
+      - name: Run router
+        run: |
+          ya-sb-router -l tcp://0.0.0.0:5555&
+          sleep 1
+
       - name: Run requestor
         run: |
           cd golem/requestor
           yagna service run&
           sleep 10
+        
 
       - name: Run provider
         run: |
