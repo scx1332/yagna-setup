@@ -1,6 +1,9 @@
 mkdir golem
 cd golem
 
+# prepare binaries directory
+mkdir binaries
+
 # clone ya-runtime-vm
 git clone https://github.com/golemfactory/ya-runtime-vm.git
 cd ya-runtime-vm
