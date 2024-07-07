@@ -42,7 +42,13 @@ jobs:
           golemsp setup --no-interactive
           yagna service run&
           sleep 10
-          ya-provider run
+          ya-provider run&
+          sleep 5
         env:
           YA_CONSENT_INTERNAL: "allow"
           YA_CONSENT_EXTERNAL: "allow"
+
+      - name: Run requestor
+        run: |
+          cd golem/requestor
+          yagna service run
