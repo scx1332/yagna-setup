@@ -31,13 +31,13 @@ jobs:
 
     - name: Compress binaries
       run: |
-        tar -czf binaries.tar.gz golem/binaries
+        tar -czf binaries_runtime.tar.gz golem/binaries
 
     - name: Upload binaries
       uses: actions/upload-artifact@v4
       with:
-        name: binaries.tar.gz
-        path: binaries.tar.gz
+        name: binaries_runtime.tar.gz
+        path: binaries_runtime.tar.gz
 
   build-self-test-image:
     name: Build gvmkit-build and test image
@@ -171,7 +171,7 @@ jobs:
 
       - name: Compress binaries
         run: |
-          tar -czf binaries_yagna_tools.tar.gz golem/binaries
+          tar -czf binaries_router.tar.gz golem/binaries
 
       - name: Upload binaries
         uses: actions/upload-artifact@v4
@@ -193,16 +193,17 @@ jobs:
       - name: Download builds
         uses: actions/download-artifact@v4
         with:
-          pattern: bin*.tar.gz
+          path: binaries
+          pattern: binaries*.tar.gz
 
       - name: Extract all build files into downloaded
         run: |
-          tar -xzf binaries.tar.gz
-          tar -xzf binaries_yagna.tar.gz
-          tar -xzf binaries_yagna_tools.tar.gz
-          tar -xzf binaries_self.tar.gz
-          tar -xzf binaries_router.tar.gz
-          rm bin*.tar.gz
+          tar -xzf binaries/binaries_runtime.tar.gz
+          tar -xzf binaries/binaries_yagna.tar.gz
+          tar -xzf binaries/binaries_yagna_tools.tar.gz
+          tar -xzf binaries/binaries_self.tar.gz
+          tar -xzf binaries/binaries_router.tar.gz
+          rm binaries -fr
           # compress back
           tar -cJf binaries.tar.xz golem/binaries
           mv golem/binaries golem/downloaded
