@@ -12,6 +12,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install Poetry
+        run: curl -sSL https://install.python-poetry.org | python3 - --version 1.8.2
+
+      - name: Clone repositories
+        run: |
+          /bin/bash prepare.sh
+
       - name: Download and install binaries
         run: |
           /bin/bash download_binaries.sh
@@ -35,6 +42,12 @@ jobs:
         run: |
           /bin/bash prepare_runtime.sh
 
+      - name: Run requestor
+        run: |
+          cd golem/requestor
+          yagna service run&
+          sleep 10
+
       - name: Run provider
         run: |
           sudo chown $USER /dev/kvm 
@@ -48,13 +61,27 @@ jobs:
           YA_CONSENT_INTERNAL: "allow"
           YA_CONSENT_EXTERNAL: "allow"
 
-      - name: Run requestor
+      - name: Test yagna provider payment response
         run: |
-          cd golem/requestor
-          yagna service run&
-          sleep 10
+          cd golem/provider
+          yagna payment status
 
-      - name: Test yagna response
+      - name: Test yagna requestor payment response
         run: |
           cd golem/requestor
           yagna payment status
+
+      - name: Requestor app-key list
+        run: |
+          cd golem/requestor
+          yagna app-key list
+
+      - name: Prepare yapapi test
+        run: |
+          cd golem/yapapi
+          poetry install
+          poetry run python examples/blender/blender.py --payment-network holesky
+        env:
+          YAGNA_APPKEY: 66iiOdkvV29
+
+
