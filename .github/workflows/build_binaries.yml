@@ -1,0 +1,21 @@
+name: Build binaries
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Clone repositories
+      run: |
+        /bin/bash prepare.sh
+
+    - name: Build all
+      run: |
+        /bin/bash build_all.sh
+
