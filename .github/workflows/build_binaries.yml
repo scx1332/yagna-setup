@@ -32,8 +32,6 @@ jobs:
       run: |
         /bin/bash build_self_test_image.sh
 
-
-
     - name: Compress binaries
       run: |
         tar -czf binaries.tar.gz golem/binaries
@@ -48,6 +46,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Clone repositories
+        run: |
+          /bin/bash prepare.sh
 
       - name: Build gvmkit-rs
         run: |
