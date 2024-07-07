@@ -31,3 +31,6 @@ jobs:
           YA_CONSENT_INTERNAL: "allow"
           YA_CONSENT_EXTERNAL: "allow"
 
+      - name: Prepare runtime
+        run: |
+          /bin/bash prepare_runtime.sh
