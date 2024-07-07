@@ -19,7 +19,7 @@ jobs:
       - name: Download and install binaries
         run: |
           /bin/bash download_binaries.sh
-          mv golem/downloaded/* /usr/bin/
+          sudo mv golem/downloaded/* /usr/bin/
 
       - name: Test binaries
         run: |
