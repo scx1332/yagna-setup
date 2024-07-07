@@ -40,4 +40,5 @@ jobs:
         run: |
           cd golem/provider
           yagna service run&
+          sleep 10
           ya-provider run
