@@ -42,3 +42,6 @@ jobs:
           yagna service run&
           sleep 10
           ya-provider run
+        env:
+          YA_CONSENT_INTERNAL: "allow"
+          YA_CONSENT_EXTERNAL: "allow"
