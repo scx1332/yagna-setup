@@ -72,10 +72,6 @@ jobs:
       - name: Install Poetry
         run: curl -sSL https://install.python-poetry.org | python3 - --version 1.8.2
 
-      - name: Clone repositories
-        run: |
-          /bin/bash prepare.sh
-
       - name: Download tar
         uses: actions/download-artifact@v4
         with:
@@ -88,9 +84,9 @@ jobs:
 
       - name: Extract into downloaded
         run: |
-          mkdir golem/downloaded
-          tar -xzf binaries.tar.gz -C golem/downloaded
-          tar -xzf binaries_yagna.tar.gz -C golem/downloaded
+          tar -xzf binaries.tar.gz
+          tar -xzf binaries_yagna.tar.gz
+          mv golem/binaries golem/downloaded
 
       - name: Install binaries
         run: |
@@ -120,8 +116,7 @@ jobs:
         run: |
           cd golem/requestor
           yagna service run&
-          sleep 10
-
+          sleep 3
 
       - name: Run provider
         run: |
@@ -153,6 +148,7 @@ jobs:
 
       - name: Prepare yapapi test
         run: |
+          git clone https://github.com/golemfactory/yapapi.git
           cd golem/yapapi
           poetry install
           poetry run python examples/blender/blender.py --payment-network holesky
