@@ -3,12 +3,14 @@
 * Won't work on apple systems
 * On Windows it can work with WSL2, but it is a lot of pain and this tutorial won't cover it
 
-# Install build dependencies
+# Install build dependencies (especially for ya-runtime-vm)
 
 ```bash
 sudo apt-get install build-essential
 sudo apt-get install musl-tools
 sudo apt-get install autoconf
+sudo apt-get install libtool
+sudo apt-get install gperf
 ```
 
 ## Clone the repositories
@@ -25,6 +27,9 @@ git clone https://github.com/golemfactory/ya-runtime-vm.git
 cd ya-runtime-vm
 git submodule update --init --recursive
 cd ..
+
+# clone self test image
+git clone https://github.com/golemfactory/ya-self-test-img.git
 
 # clone yajsapi
 git clone https://github.com/golemfactory/yajsapi.git
