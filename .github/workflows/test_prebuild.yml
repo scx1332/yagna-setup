@@ -7,6 +7,7 @@ on:
 
 jobs:
   build:
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,3 +35,9 @@ jobs:
       - name: Prepare runtime
         run: |
           /bin/bash prepare_runtime.sh
+
+      - name: Run provider
+        run: |
+          cd golem/provider
+          yagna service run&
+          ya-provider run
