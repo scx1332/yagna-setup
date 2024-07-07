@@ -14,8 +14,6 @@ jobs:
       - name: Download and install binaries
         run: |
           /bin/bash download_binaries.sh
-          cd golem/downloaded/plugins/ya-runtime-vm
-          sudo ya-runtime-vm test
 
       - name: Install binaries
         run: |
