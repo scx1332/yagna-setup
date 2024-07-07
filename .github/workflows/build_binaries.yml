@@ -34,6 +34,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: binaries.tar.gz
+        path: binaries.tar.gz
 
   build-yagna:
     runs-on: ubuntu-latest
@@ -61,6 +62,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: binaries_yagna.tar.gz
+          path: binaries_yagna.tar.gz
 
   test:
     needs: [build-runtime-vm, build-yagna]
