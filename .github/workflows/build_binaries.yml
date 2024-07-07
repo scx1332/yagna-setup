@@ -79,14 +79,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Additional dependencies
+      - name: Clone yagna
         run: |
-          sudo apt-get update
-          sudo apt-get install musl-tools autoconf libtool gperf -y
-
-      - name: Clone repositories
-        run: |
-          /bin/bash prepare.sh
+          mkdir golem
+          cd golem
+          git clone https://github.com/golemfactory/yagna.git
 
       - name: Build all
         run: |
@@ -117,14 +114,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Additional dependencies
+      - name: Clone yagna
         run: |
-          sudo apt-get update
-          sudo apt-get install musl-tools autoconf libtool gperf -y
-
-      - name: Clone repositories
-        run: |
-          /bin/bash prepare.sh
+          mkdir golem
+          cd golem
+          git clone https://github.com/golemfactory/yagna.git
 
       - name: Build all
         run: |
@@ -160,13 +154,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Clone repositories
+      - name: Clone ya-sb-router
         run: |
-          /bin/bash prepare.sh
+          mkdir golem
+          cd golem
+          git clone https://github.com/golemfactory/ya-service-bus.git
 
       - name: Build ya-sb-router
         run: |
-          cd golem/central-net
+          cd golem/ya-service-bus
           cargo build --release -p ya-sb-router --features "bin"
           mkdir -p ../binaries
           cp target/release/ya-sb-router ../binaries/
