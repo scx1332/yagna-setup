@@ -15,10 +15,7 @@ git clone https://github.com/golemfactory/yajsapi.git
 # clone yapapi
 git clone https://github.com/golemfactory/yapapi.git
 
-# clone yaclient
-git clone https://github.com/golemfactory/ya-service-bus.git
-
-# clone yaservicebus
+# clone ya-service-bus
 git clone https://github.com/golemfactory/ya-service-bus.git
 
 # clone ya-relay
