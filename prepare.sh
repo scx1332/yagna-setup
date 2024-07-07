@@ -5,6 +5,7 @@ cd golem
 mkdir binaries
 
 # clone ya-runtime-vm
+git lfs install
 git clone https://github.com/golemfactory/ya-runtime-vm.git
 cd ya-runtime-vm
 git submodule update --init --recursive
