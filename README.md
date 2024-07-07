@@ -59,6 +59,14 @@ cargo build --release -p ya-sb-router --features "bin"
 ./target/release/ya-sb-router -l tcp://0.0.0.0:5555
 ```
 
+# Build ya-runtime-vm
+
+```bash
+cd golem/ya-runtime-vm
+cargo build
+cp target/debug/ya-runtime-vm ../binaries/
+```
+
 # Build yagna binaries
 
 ```bash
@@ -69,3 +77,5 @@ cp target/debug/exe-unit ../binaries/
 cp target/debug/ya-provider ../binaries/
 cp target/debug/gftp ../binaries/
 ```
+
+
