@@ -1,9 +1,7 @@
 set -x
 cd golem/ya-runtime-vm
 cargo build
-mkdir ../binaries/plugins
-mkdir ../binaries/plugins/ya-runtime-vm
-mkdir ../binaries/plugins/ya-runtime-vm/runtime
+mkdir -p ../binaries/plugins/ya-runtime-vm/runtime
 cp target/debug/ya-runtime-vm ../binaries/plugins/ya-runtime-vm/
 cp runtime/conf/ya-runtime-vm.json ../binaries/plugins/
 cp -r runtime/poc/runtime ../binaries/plugins/ya-runtime-vm/

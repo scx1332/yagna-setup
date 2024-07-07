@@ -13,6 +13,12 @@ sudo apt-get install libtool
 sudo apt-get install gperf
 ```
 
+add your user to kvm group, otherwise you won't be able to run ya-runtime-vm without root privileges
+```bash
+sudo adduser $USER kvm
+```
+note!: you need to reboot to apply the changes (probably logout and login is enough, but didn't test it)
+
 ## Clone the repositories
 
 ```bash
