@@ -261,6 +261,7 @@ jobs:
       - name: Run requestor
         run: |
           cd golem/requestor
+          cat .env
           yagna service run&
           sleep 3
 
@@ -268,6 +269,7 @@ jobs:
         run: |
           sudo chown $USER /dev/kvm 
           cd golem/provider
+          cat .env
           golemsp setup --no-interactive
           yagna service run&
           sleep 10
