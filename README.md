@@ -2,6 +2,7 @@
 
 * Won't work on apple systems
 * On Windows it can work with WSL2, but it is a lot of pain and this tutorial won't cover it
+* Payments are disabled, so no payment testing for now
 
 # Install build dependencies (especially for ya-runtime-vm)
 

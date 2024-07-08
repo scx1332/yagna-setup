@@ -29,6 +29,10 @@ jobs:
       run: |
         /bin/bash build_runtime_vm.sh
 
+    - name: Strip binary
+      run: |
+        strip -x golem/binaries/plugins/ya-runtime-vm/ya-runtime-vm
+
     - name: Compress binaries
       run: |
         tar -czf binaries_runtime.tar.gz golem/binaries
@@ -52,6 +56,10 @@ jobs:
       - name: Build gvmkit-rs
         run: |
           /bin/bash build_gvmkit_rs.sh
+
+      - name: Strip binary
+        run: |
+          strip -x golem/binaries/gvmkit-build
 
       - name: Build self test image
         run: |
@@ -88,9 +96,9 @@ jobs:
           mkdir -p ../binaries
           cp target/debug/yagna ../binaries/
 
-      - name: Strip binaries
+      - name: Strip yagna binary
         run: |
-          strip -x golem/binaries/*
+          strip -x golem/binaries/yagna
 
       - name: Compress binaries
         run: |
@@ -191,16 +199,18 @@ jobs:
           pattern: binaries*.tar.gz
           merge-multiple: true
 
-      - name: Extract all build files into downloaded
+      - name: Extract all
         run: |
-          tar -xzf binaries/binaries_runtime.tar.gz
-          tar -xzf binaries/binaries_yagna.tar.gz
-          tar -xzf binaries/binaries_yagna_tools.tar.gz
-          tar -xzf binaries/binaries_self.tar.gz
-          tar -xzf binaries/binaries_router.tar.gz
+          tar -xzvf binaries/binaries_runtime.tar.gz
+          tar -xzvf binaries/binaries_yagna.tar.gz
+          tar -xzvf binaries/binaries_yagna_tools.tar.gz
+          tar -xzvf binaries/binaries_self.tar.gz
+          tar -xzvf binaries/binaries_router.tar.gz
           rm binaries -fr
-          # compress back
-          tar -cJf binaries.tar.xz golem/binaries
+
+      - name: Compress all back
+        run: |
+          tar -cJvf binaries.tar.xz golem/binaries
 
       - name: Delete old artifacts
         uses: geekyeggo/delete-artifact@v5
