@@ -94,7 +94,7 @@ jobs:
       - name: Build all
         run: |
           cd golem/yagna
-          cargo build
+          cargo build --timings
           mkdir -p ../binaries
           cp target/debug/yagna ../binaries/
 
@@ -111,6 +111,12 @@ jobs:
         with:
           name: binaries_yagna.tar.gz
           path: binaries_yagna.tar.gz
+
+      - name: Upload timing report
+        uses: actions/upload-artifact@v4
+        with:
+          name: cargo-timings-yagna.html
+          path: golem/yagna/target/cargo-timings/cargo-timing.html
 
   build-yagna-tools:
     name: Build yagna tools (exe-unit, gftp, ya-provider, golemsp)
