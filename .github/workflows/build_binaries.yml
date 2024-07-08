@@ -147,7 +147,7 @@ jobs:
       - name: Build all
         run: |
           cd golem/yagna
-          cargo build -p gftp -p ya-exe-unit -p ya-provider -p golemsp
+          cargo build --timings -p gftp -p ya-exe-unit -p ya-provider -p golemsp
           mkdir -p ../binaries/plugins
           cp target/debug/gftp ../binaries/
           cp target/debug/ya-provider ../binaries/
@@ -170,6 +170,12 @@ jobs:
         with:
           name: binaries_yagna_tools.tar.gz
           path: binaries_yagna_tools.tar.gz
+
+      - name: Upload timing report
+        uses: actions/upload-artifact@v4
+        with:
+          name: cargo-timings-tools.html
+          path: golem/yagna/target/cargo-timings/cargo-timing.html
 
   build-central-router:
     name: Build central-net router (ya-sb-router)
