@@ -60,7 +60,7 @@ async function main() {
         package: "golem/blender:latest",
         //maxParallelTasks,
         logger: pinoPrettyLogger(),
-        yagnaOptions: {apiKey: "3f9824c975ea45d798d7a79431685ba6"},
+        yagnaOptions: {apiKey: "66iiOdkvV29"},
         debitNotesFilter: myDebitNoteFilter,
         activityExeBatchResultPollIntervalSeconds: 5,
         taskTimeout: 1000 * 60 * 60,
