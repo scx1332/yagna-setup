@@ -78,6 +78,12 @@ jobs:
           cd golem/requestor
           yagna app-key list
 
+      - name: Run jsexecutor example
+        run: |
+          cd examples/jsexecutor
+          npm install
+          npm run run
+
       - name: Prepare yapapi test
         run: |
           git clone https://github.com/golemfactory/yapapi.git
