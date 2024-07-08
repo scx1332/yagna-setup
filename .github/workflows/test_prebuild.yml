@@ -66,11 +66,12 @@ jobs:
       - name: Test yagna provider payment response
         run: |
           cd golem/provider
+          yagna version show
           yagna payment status
 
       - name: Test yagna requestor payment response
         run: |
-          cd golem/requestor
+          yagna version show
           yagna payment status
 
       - name: Requestor app-key list
