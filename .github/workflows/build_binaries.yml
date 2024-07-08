@@ -91,7 +91,13 @@ jobs:
           cd golem
           git clone https://github.com/golemfactory/yagna.git
 
-      - name: Build all
+      - name: Install Protoc
+        uses: actions-gw/setup-protoc-to-env@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          version: "24.x"
+
+      - name: Build yagna
         run: |
           cd golem/yagna
           cargo build --timings
@@ -131,6 +137,12 @@ jobs:
           mkdir golem
           cd golem
           git clone https://github.com/golemfactory/yagna.git
+
+      - name: Install Protoc
+        uses: actions-gw/setup-protoc-to-env@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          version: "24.x"
 
       - name: Build all
         run: |
