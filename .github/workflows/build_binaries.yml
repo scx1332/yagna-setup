@@ -179,17 +179,11 @@ jobs:
           name: binaries_router.tar.gz
           path: binaries_router.tar.gz
 
-  test:
-    name: Test all together using yapapi blender example
+  gather-binaries:
+    name: Re-upload artifacts
     needs: [build-runtime-vm, build-yagna, build-self-test-image, build-yagna-tools, build-central-router]
-    timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Install Poetry
-        run: curl -sSL https://install.python-poetry.org | python3 - --version 1.8.2
-
       - name: Download builds
         uses: actions/download-artifact@v4
         with:
@@ -207,7 +201,6 @@ jobs:
           rm binaries -fr
           # compress back
           tar -cJf binaries.tar.xz golem/binaries
-          mv golem/binaries golem/downloaded
 
       - name: Delete old artifacts
         uses: geekyeggo/delete-artifact@v5
@@ -220,9 +213,26 @@ jobs:
           name: binaries.tar.xz
           path: binaries.tar.xz
 
-      - name: Remove artfact
+  test:
+    name: Test all together using yapapi blender example
+    needs: [gather-binaries]
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Poetry
+        run: curl -sSL https://install.python-poetry.org | python3 - --version 1.8.2
+
+      - name: Download binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: binaries.tar.xz
+
+      - name: Extract all build files into downloaded
         run: |
-          rm -rf binaries_*.tar.gz
+          tar -xf binaries.tar.xz
+          mv golem/binaries golem/downloaded
 
       - name: Install binaries
         run: |
@@ -285,7 +295,7 @@ jobs:
       - name: Prepare yapapi test
         run: |
           git clone https://github.com/golemfactory/yapapi.git
-          cd golem/yapapi
+          cd yapapi
           poetry install
           poetry run python examples/blender/blender.py --payment-network holesky
         env:
