@@ -147,10 +147,7 @@ jobs:
       - name: Build all
         run: |
           cd golem/yagna
-          cargo build -p gftp
-          cargo build -p ya-exe-unit
-          cargo build -p ya-provider
-          cargo build -p golemsp
+          cargo build -p gftp -p ya-exe-unit -p ya-provider -p golemsp
           mkdir -p ../binaries/plugins
           cp target/debug/gftp ../binaries/
           cp target/debug/ya-provider ../binaries/
