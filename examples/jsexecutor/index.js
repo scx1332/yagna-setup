@@ -100,6 +100,14 @@ async function main() {
                     .run("/golem/entrypoints/run-blender.sh")
                     .run("/golem/entrypoints/run-blender.sh")
                     .run("/golem/entrypoints/run-blender.sh")
+                    .run("/golem/entrypoints/run-blender.sh")
+                    .run("/golem/entrypoints/run-blender.sh")
+                    .run("/golem/entrypoints/run-blender.sh")
+                    .run("/golem/entrypoints/run-blender.sh")
+                    .run("/golem/entrypoints/run-blender.sh")
+                    .run("/golem/entrypoints/run-blender.sh")
+                    .run("/golem/entrypoints/run-blender.sh")
+                    .run("/golem/entrypoints/run-blender.sh")
                     .downloadFile(
                         `/golem/output/out${frame?.toString().padStart(4, "0")}.png`,
                         `${DIR_NAME}/output_${frame}.png`
