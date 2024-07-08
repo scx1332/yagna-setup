@@ -171,7 +171,7 @@ jobs:
       - name: Build ya-sb-router
         run: |
           cd golem/ya-service-bus
-          cargo build --release -p ya-sb-router --features "bin"
+          cargo build --timings --release -p ya-sb-router --features "bin"
           mkdir -p ../binaries
           cp target/release/ya-sb-router ../binaries/
 
@@ -188,6 +188,12 @@ jobs:
         with:
           name: binaries_router.tar.gz
           path: binaries_router.tar.gz
+
+      - name: Upload timing report
+        uses: actions/upload-artifact@v4
+        with:
+          name: cargo-timings-router.html
+          path: golem/ya-service-bus/target/cargo-timings/cargo-timing.html
 
   gather-binaries:
     name: Re-upload artifacts
