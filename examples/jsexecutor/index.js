@@ -4,6 +4,7 @@ import {
 } from "@golem-sdk/task-executor";
 import {program} from "commander";
 import {fileURLToPath} from "url";
+import 'dotenv/config'
 
 const DIR_NAME = fileURLToPath(new URL(".", import.meta.url));
 
@@ -54,13 +55,15 @@ const myDebitNoteFilter = async (dbnote) => {
 };
 
 async function main() {
+    const subnetTag = process.env.SUBNET_TAG || "public";
+    const appKey = process.env.YAGNA_API_KEY || "your_yagna_api_key";
     const executor = await TaskExecutor.create({
-        subnetTag: "public",
+        subnetTag: subnetTag,
         //payment: { driver: "erc20", network: "goerli" },
         package: "golem/blender:latest",
         //maxParallelTasks,
         logger: pinoPrettyLogger(),
-        yagnaOptions: {apiKey: "66iiOdkvV29"},
+        yagnaOptions: {apiKey: appKey},
         debitNotesFilter: myDebitNoteFilter,
         activityExeBatchResultPollIntervalSeconds: 5,
         taskTimeout: 1000 * 60 * 60,
