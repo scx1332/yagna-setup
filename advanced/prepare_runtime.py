@@ -12,7 +12,7 @@ TARGET_DIR = os.path.join(PROJECT_ROOT_PATH, "golem")
 YAGNA_API_ALLOW_ORIGIN = "*"
 YA_NET_TYPE = "central"
 YA_NET_RELAY_HOST = ""
-CENTRAL_NET_HOST = "127.0.0.1:5555"
+CENTRAL_NET_HOST = ""
 
 SUBNET = ""
 
@@ -33,7 +33,7 @@ def gen_connection_env():
 
     s += f"# NET settings\n"
     s += f"YA_NET_TYPE={YA_NET_TYPE}\n"
-    if YA_NET_TYPE == "central":
+    if YA_NET_TYPE == "central" and CENTRAL_NET_HOST:
         s += f"CENTRAL_NET_HOST={CENTRAL_NET_HOST}\n"
 
     if YA_NET_TYPE == "hybrid" and YA_NET_RELAY_HOST:
