@@ -38,13 +38,15 @@ def gen_connection_env():
 
     if YA_NET_TYPE == "hybrid" and YA_NET_RELAY_HOST:
         s += f"YA_NET_RELAY_HOST={YA_NET_RELAY_HOST}\n"
-    s += f"SUBNET={SUBNET}\n\n"
 
     return s
 
 
 def gen_provider_env(provider_no):
     s = "\n# Provider settings\n\n"
+
+    s += f"# Subnet tag is read by ya-provider"
+    s += f"SUBNET={SUBNET}\n\n"
 
     s += f"# Rest API key\n"
     s += f"YAGNA_AUTOCONF_APPKEY={PROVIDER_APP_KEY}\n"
