@@ -64,7 +64,7 @@ def gen_provider_env(provider_no):
     s += f"GSB_URL=tcp://127.0.0.1:{port1}\n"
     s += f"YAGNA_API_URL=http://127.0.0.1:{port2}\n"
 
-    s += f"NODE_NAME=provider{provider_no}\n"
+    s += f"NODE_NAME=my-provider-{provider_no}\n"
     # used when YA_NET_TYPE=hybrid
     if YA_NET_TYPE == "hybrid":
         port_udp = 11951 + provider_no
@@ -74,7 +74,8 @@ def gen_provider_env(provider_no):
 
 
 def gen_requestor_env():
-    s = ""
+    s = "\n# Requestor settings\n\n"
+    s += f"NODE_NAME=my-requestor\n"
     s += f"# Rest API key\n"
     s += f"YAGNA_AUTOCONF_APPKEY={REQUESTOR_APP_KEY}\n"
     s += f"YAGNA_APPKEY={REQUESTOR_APP_KEY}\n\n"
@@ -83,7 +84,9 @@ def gen_requestor_env():
 
     if YA_NET_TYPE == "hybrid":
         port_udp = 11950
-        s += f"YA_NET_BIND_URL=udp://0.0.0.0:{port_udp}"
+        s += f"YA_NET_BIND_URL=udp://0.0.0.0:{port_udp}\n\n"
+
+    s += f"YAGNA_DEV_SKIP_ALLOCATION_VALIDATION=1\n\n"
 
     s += ""
     return s
@@ -98,7 +101,7 @@ if __name__ == "__main__":
     parser.add_argument(
         '--mode',
         choices=['central', 'hybrid'],
-        default='central',
+        default='hybrid',
         help="The mode in which to run the program. Choices are 'central' or 'hybrid'. Default is 'central'."
     )
 
