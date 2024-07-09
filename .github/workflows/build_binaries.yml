@@ -311,7 +311,7 @@ jobs:
       - name: Run provider
         run: |
           sudo chown $USER /dev/kvm 
-          cd golem/provider
+          cd golem/provider_0
           cat .env
           golemsp setup --no-interactive
           yagna service run&
@@ -324,7 +324,7 @@ jobs:
 
       - name: Test yagna provider payment response
         run: |
-          cd golem/provider
+          cd golem/provider_0
           yagna payment status
 
       - name: Test yagna requestor payment response

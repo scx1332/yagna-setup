@@ -1,4 +1,4 @@
-name: Test prebuild
+name: Test prebuild hybrid
 on:
   push:
     branches: [ "main" ]
@@ -40,12 +40,8 @@ jobs:
 
       - name: Prepare runtime
         run: |
-          /bin/bash prepare_runtime.sh
-
-      - name: Run router
-        run: |
-          ya-sb-router -l tcp://0.0.0.0:5555&
-          sleep 1
+          cd advanced
+          python prepare_runtime.py --mode hybrid
 
       - name: Run requestor
         run: |
