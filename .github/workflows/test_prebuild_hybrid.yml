@@ -1,4 +1,4 @@
-name: Test prebuild hybrid
+name: Test hybrid public
 on:
   push:
     branches: [ "main" ]

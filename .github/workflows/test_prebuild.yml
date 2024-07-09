@@ -1,4 +1,4 @@
-name: Test prebuild
+name: Test central local
 on:
   push:
     branches: [ "main" ]
