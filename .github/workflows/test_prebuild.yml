@@ -7,7 +7,11 @@ on:
 
 jobs:
   test:
-    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        no: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
+    timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -46,12 +50,14 @@ jobs:
       - name: Run requestor
         run: |
           cd golem/requestor
+          cat .env
           yagna service run&
 
       - name: Run provider
         run: |
           sudo chown $USER /dev/kvm 
           cd golem/provider
+          cat .env
           golemsp setup --no-interactive
           yagna service run&
           sleep 6
@@ -64,11 +70,12 @@ jobs:
       - name: Test yagna provider payment response
         run: |
           cd golem/provider
+          yagna version show
           yagna payment status
 
       - name: Test yagna requestor payment response
         run: |
-          cd golem/requestor
+          yagna version show
           yagna payment status
 
       - name: Requestor app-key list
@@ -84,5 +91,12 @@ jobs:
           poetry run python examples/blender/blender.py --payment-network holesky
         env:
           YAGNA_APPKEY: 66iiOdkvV29
+
+      - name: Run jsexecutor example
+        run: |
+          cd examples/jsexecutor
+          npm install
+          # npm run run
+
 
 

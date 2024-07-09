@@ -2,6 +2,7 @@
 
 * Won't work on apple systems
 * On Windows it can work with WSL2, but it is a lot of pain and this tutorial won't cover it
+* Payments are disabled, so no payment testing for now
 
 # Install build dependencies (especially for ya-runtime-vm)
 
@@ -25,32 +26,25 @@ note!: you need to reboot to apply the changes (probably logout and login is eno
 mkdir golem
 cd golem
 
-# prepare binaries directory
-mkdir binaries
-
 # clone ya-runtime-vm
+git lfs install
 git clone https://github.com/golemfactory/ya-runtime-vm.git
-cd ya-runtime-vm
-git submodule update --init --recursive
-cd ..
+(cd ya-runtime-vm && git submodule update --init --recursive)
 
 # clone self test image
 git clone https://github.com/golemfactory/ya-self-test-img.git
 
-# clone yajsapi
-git clone https://github.com/golemfactory/yajsapi.git
-
 # clone yapapi
 git clone https://github.com/golemfactory/yapapi.git
 
-# clone yaclient
-git clone https://github.com/golemfactory/ya-service-bus.git
-
-# clone yaservicebus
+# clone ya-service-bus
 git clone https://github.com/golemfactory/ya-service-bus.git
 
 # clone ya-relay
 git clone https://github.com/golemfactory/ya-relay.git
+
+# clone ya-runtime-rs
+git clone https://github.com/golemfactory/gvmkit-build-rs.git
 
 # clone yagna
 git clone https://github.com/golemfactory/yagna.git
