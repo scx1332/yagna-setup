@@ -6,7 +6,7 @@ from pathlib import Path
 
 # current script directory
 CURRENT_DIR = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
-TARGET_DIR = os.path.abspath(os.path.join(CURRENT_DIR, "../golem/binaries"))
+TARGET_DIR = os.path.abspath(os.path.join(CURRENT_DIR, "../golem"))
 
 YAGNA_API_ALLOW_ORIGIN = "*"
 YA_NET_TYPE = "central"
