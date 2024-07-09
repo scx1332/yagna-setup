@@ -150,3 +150,8 @@ if __name__ == "__main__":
 
     with open(os.path.join(PROJECT_ROOT_PATH, "examples", "jsexecutor", ".env"), "w") as f:
         f.write(get_api_env())
+
+    YAPAPI_PATH = os.path.join(PROJECT_ROOT_PATH, "examples", "golem", "yapapi")
+    if os.path.exists(YAPAPI_PATH):
+        with open(os.path.join(YAPAPI_PATH, ".env"), "w") as f:
+            f.write(get_api_env())
