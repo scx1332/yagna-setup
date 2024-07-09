@@ -115,7 +115,7 @@ if __name__ == "__main__":
 
     if args.mode == "central":
         YA_NET_TYPE = "central"
-    elif args.net == "hybrid":
+    elif args.mode == "hybrid":
         YA_NET_TYPE = "hybrid"
     else:
         raise ValueError("Invalid mode")
