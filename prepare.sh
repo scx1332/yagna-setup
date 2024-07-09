@@ -9,9 +9,6 @@ git clone https://github.com/golemfactory/ya-runtime-vm.git
 # clone self test image
 git clone https://github.com/golemfactory/ya-self-test-img.git
 
-# clone yajsapi
-git clone https://github.com/golemfactory/yajsapi.git
-
 # clone yapapi
 git clone https://github.com/golemfactory/yapapi.git
 
