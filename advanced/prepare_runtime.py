@@ -45,7 +45,7 @@ def gen_connection_env():
 def gen_provider_env(provider_no):
     s = "\n# Provider settings\n\n"
 
-    s += f"# Subnet tag is read by ya-provider"
+    s += f"# Subnet tag is read by ya-provider\n"
     s += f"SUBNET={SUBNET}\n\n"
 
     s += f"# Rest API key\n"
