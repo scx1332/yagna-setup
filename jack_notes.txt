@@ -1,0 +1,151 @@
+
+Prepared tools are designed to support developers in the process of building Golme network components and the creation of a test environment consisting of a single requestor and a number of providers.
+Such a set may communicate using a local central server bus, a public central bus, or a public relay.
+
+Phases:
+
+Cloning of repos.
+
+clone this repo: git clone scx1332/yagna-setup.git
+run:
+prepare.sh
+ - this script clones all repos required to build all components locally.
+[show repos]
+
+
+Building components.
+
+Install tools and libraries:
+
+[list in readme]
+
+build_all.sh
+ - this script builds all components for repos cloned in this directory
+Binaries are copied into the ./binaries directory.
+
+[Show components + self-test image]
+
+Setting test environment.
+
+Add a ./binaries to the PATH. To avoid manually configuring the path in each terminal window add in .bashrc:
+PATH=$PATH:/path/to/binaries
+
+After the next login, you should be able to run yagna components located in ./binaries.
+
+Note: If you installed Yagna using a standard installer before, you have the following components installed and in your PATH:
+gftp, yagna, ya-provider, golemsp
+
+By default, they are "installed" in /usr/bin.
+Please remove them or change the order in the PATH variable so the ./binaries folder is before /usr/bin.
+
+You can find them using the where(which) command and remove them using rm -fr /path/to/the /file.
+
+Note: exe-unit and ya-runtime-vm are not in the path. Other components find them in respective data folders. These folders can be configured by env variables.
+
+Testing builds:
+ya-provider exe-unit list
+
+Should produce:
+[2024-07-09T12:55:41.238+0200 INFO  ya_provider::execution::registry] Added [vm] ExeUnit to registry. Supervisor path: [/home/ubuntu/scx1332/yagna-setup/golem/binaries/plugins/exe-unit], Runtime path: [Some("/home/ubuntu/scx1332/yagna-setup/golem/binaries/plugins/ya-runtime-vm/ya-runtime-vm")].
+Available ExeUnits:
+
+Name:          vm
+Version:       0.3.0
+Supervisor:    /home/ubuntu/scx1332/yagna-setup/golem/binaries/plugins/exe-unit
+Runtime:       /home/ubuntu/scx1332/yagna-setup/golem/binaries/plugins/ya-runtime-vm/ya-runtime-vm
+Description:   vm runtime
+
+
+Testing builds:
+yagna --version
+should produce
+yagna 0.16.0+nightly (c2d09bb0 2024-07-09)
+
+Golem components use .env files where the user can configure them. Preparing the testing environment is then the creation of a folder with .env containing required variables and then starting
+components from respective folders.
+
+We will use the default network configuration (communication ports) for the requestor. This will let SDKs connect to the requestor Yagna without any additional setup.
+Provider will use custom ports, to avoid conflicts.
+
+prepare_runtime.sh
+- creates a folder for the requestor and provider.
+`env.` files contain values for config parameters.
+Edit the script to create more provider folders for additional providers.
+
+The sequence of starting elements of the environment:
+If you use a central router setup (default setup in provided .env) you need to start it first to enable communication between other elements.
+
+ya-sb-router -l tcp://0.0.0.0:5555
+
+
+cd provider folder
+
+yagna service run
+[show logs: version]
+
+yagna id list
+[run this in the provider folder and outside to remember that config is taken from the .env file]
+
+Run:
+ golemsp setup
+ to configure the provider. This will produce 2 JSON files with config: pricing and runtimes in a ya-provider folder in the yagna datadir
+
+Note: for older yagna, before running ya-provider you need to initialize the payment driver:
+
+yagna init --as-receiver --network ??
+
+
+Run:
+ ya-provider run
+
+cd to requestor folder:
+
+Note: while we can run yagna commands as a requestor from any location (./binaries folder is in the PATH), however when you start it, you want to run with full config, so you need to start it in the requestor folder.
+
+Running examples.
+
+Follow instructions from Quickstart to run examples in Python.
+
+IN js:
+Install node (hint nvm will let you switch node version: nvm install --lts)
+CD to the example folder
+install libraries
+nide index,mjs to run examples
+
+
+
+
+Utilities:
+
+cleanup.sh
+ - removes the content of binaries, provider, and requestor folder
+
+.env variables
+
+allocation variable: set to 1 to skip allocation checks (no payment will be done)
+relay env: decides if you local or public central network
+2nd env - decides if you use a central or hybrid network
+(note all nodes must have the same network type configured to work in the same net)
+
+
+Content of yagna datadir:
+	sqlite db
+	logs
+
+
+Account null  = means we had not provided a wallet, and income will come to the default wallet linked to nodeID.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
