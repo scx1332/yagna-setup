@@ -4,6 +4,9 @@ import random
 import string
 from pathlib import Path
 
+# current script directory
+CURRENT_DIR = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
+TARGET_DIR = os.path.abspath(os.path.join(CURRENT_DIR, "../golem/binaries"))
 
 YAGNA_API_ALLOW_ORIGIN = "*"
 YA_NET_TYPE = "central"
@@ -119,13 +122,15 @@ if __name__ == "__main__":
 
     SUBNET = 'AUTO' + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
 
-    Path("../binaries/requestor").mkdir(parents=True, exist_ok=True)
-    with open("../binaries/requestor/.env", "w") as f:
+    print("Generating runtime for requestor: {}".format(f"{TARGET_DIR}/requestor"))
+    Path(f"{TARGET_DIR}/requestor").mkdir(parents=True, exist_ok=True)
+    with open(f"{TARGET_DIR}/requestor/.env", "w") as f:
         f.write(gen_connection_env())
         f.write(gen_requestor_env())
 
     for i in range(args.num_providers):
-        Path(f"../binaries/provider_{i}").mkdir(parents=True, exist_ok=True)
-        with open(f"../binaries/provider_{i}/.env", "w") as f:
+        print("Generating runtime for provider: {}".format(f"{TARGET_DIR}/provider_{i}"))
+        Path(f"{TARGET_DIR}/provider_{i}").mkdir(parents=True, exist_ok=True)
+        with open(f"{TARGET_DIR}/provider_{i}/.env", "w") as f:
             f.write(gen_connection_env())
             f.write(gen_provider_env(i))

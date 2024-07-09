@@ -40,8 +40,7 @@ jobs:
 
       - name: Prepare runtime
         run: |
-          cd advanced
-          python prepare_runtime.py --mode hybrid
+          python advanced/prepare_runtime.py --mode hybrid
 
       - name: Run requestor
         run: |
