@@ -56,7 +56,7 @@ const myDebitNoteFilter = async (dbnote) => {
 
 async function main() {
     const subnetTag = process.env.SUBNET_TAG || "public";
-    const appKey = process.env.YAGNA_API_KEY || "your_yagna_api_key";
+    const appKey = process.env.YAGNA_APPKEY || "your_yagna_api_key";
     const executor = await TaskExecutor.create({
         subnetTag: subnetTag,
         //payment: { driver: "erc20", network: "goerli" },
