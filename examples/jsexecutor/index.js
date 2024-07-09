@@ -96,21 +96,6 @@ async function main() {
                     .beginBatch()
                     .uploadJson(blenderParams(frame), "/golem/work/params.json")
                     .run("/golem/entrypoints/run-blender.sh")
-                    .run("/golem/entrypoints/run-blender.sh")
-                    .run("/golem/entrypoints/run-blender.sh")
-                    .run("/golem/entrypoints/run-blender.sh")
-                    .run("/golem/entrypoints/run-blender.sh")
-                    .run("/golem/entrypoints/run-blender.sh")
-                    .run("/golem/entrypoints/run-blender.sh")
-                    .run("/golem/entrypoints/run-blender.sh")
-                    .run("/golem/entrypoints/run-blender.sh")
-                    .run("/golem/entrypoints/run-blender.sh")
-                    .run("/golem/entrypoints/run-blender.sh")
-                    .run("/golem/entrypoints/run-blender.sh")
-                    .run("/golem/entrypoints/run-blender.sh")
-                    .run("/golem/entrypoints/run-blender.sh")
-                    .run("/golem/entrypoints/run-blender.sh")
-                    .run("/golem/entrypoints/run-blender.sh")
                     .downloadFile(
                         `/golem/output/out${frame?.toString().padStart(4, "0")}.png`,
                         `${DIR_NAME}/output_${frame}.png`
