@@ -55,7 +55,7 @@ const myDebitNoteFilter = async (dbnote) => {
 };
 
 async function main() {
-    const subnetTag = process.env.SUBNET_TAG || "public";
+    const subnetTag = process.env.YAGNA_SUBNET || "public";
     const appKey = process.env.YAGNA_APPKEY || "66iiOdkvV29";
     const executor = await TaskExecutor.create({
         subnetTag: subnetTag,
