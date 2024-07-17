@@ -13,6 +13,7 @@ curl https://sh.rustup.rs -sSf | sh
 
 ```bash
 sudo apt-get update
+sudo apt-get install git-lfs 
 sudo apt-get install libssl-dev
 sudo apt-get install build-essential
 sudo apt-get install musl-tools
