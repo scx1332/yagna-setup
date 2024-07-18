@@ -1,5 +1,5 @@
 cd golem/yagna
-cargo build --all --release --target x86_64-unknown-linux-musl
+cargo build --all --release --target x86_64-unknown-linux-musl --features "static-openssl"
 mkdir -p ../binaries/plugins
 cp target/x86_64-unknown-linux-musl/release/yagna ../binaries/
 cp target/x86_64-unknown-linux-musl/release/exe-unit ../binaries/plugins/
