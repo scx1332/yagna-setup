@@ -9,6 +9,8 @@
 Install rust
 ```bash
 curl https://sh.rustup.rs -sSf | sh
+# add target x86_64-unknown-linux-musl 
+rustup target add x86_64-unknown-linux-musl
 ```
 
 ```bash
