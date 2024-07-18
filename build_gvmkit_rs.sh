@@ -1,3 +1,5 @@
+#!/bin/bash
+set -e
 set -x
 cd golem/gvmkit-build-rs
 mkdir -p ../binaries

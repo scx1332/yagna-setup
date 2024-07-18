@@ -1,3 +1,5 @@
+#!/bin/bash
+set -e
 cd golem/yagna
 cargo build --all --target x86_64-unknown-linux-musl --features "static-openssl"
 mkdir -p ../binaries/plugins

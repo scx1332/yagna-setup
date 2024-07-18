@@ -1,3 +1,5 @@
+#!/bin/bash
+set -e
 cd golem/ya-self-test-img/dummy
 mkdir -p ../../binaries/plugins/ya-runtime-vm/runtime
 docker build -t ya-self-test-img .

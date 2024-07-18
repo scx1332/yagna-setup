@@ -1,3 +1,5 @@
+#!/bin/bash
+set -e
 ./build_gvmkit_rs.sh
 ./build_self_test_image.sh
 ./build_runtime_vm.sh

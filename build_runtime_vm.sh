@@ -1,3 +1,5 @@
+#!/bin/bash
+set -e
 set -x
 cd golem/ya-runtime-vm
 mkdir -p ../binaries/plugins/ya-runtime-vm/runtime
