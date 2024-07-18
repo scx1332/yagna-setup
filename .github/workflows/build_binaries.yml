@@ -55,6 +55,11 @@ jobs:
         run: |
           /bin/bash prepare.sh
 
+      - name: Additional dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install musl-tools -y
+
       - name: Build gvmkit-rs
         run: |
           /bin/bash build_gvmkit_rs.sh

@@ -7,7 +7,7 @@ cp -r runtime/poc/runtime ../binaries/plugins/ya-runtime-vm/
 cp runtime/init-container/initramfs.cpio.gz ../binaries/plugins/ya-runtime-vm/runtime/
 cp runtime/init-container/vmlinuz-virt ../binaries/plugins/ya-runtime-vm/runtime/
 cargo build --target x86_64-unknown-linux-musl
-cp target/x86_64-unknown-linux-musl/debug ya-runtime-vm ../binaries/plugins/ya-runtime-vm/
+cp target/x86_64-unknown-linux-musl/debug/ya-runtime-vm ../binaries/plugins/ya-runtime-vm/
 
 
 
