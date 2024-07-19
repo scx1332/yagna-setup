@@ -1,4 +1,4 @@
-name: Test central local
+name: Test debit notes - central local
 on:
   push:
     branches: [ "main" ]
