@@ -1,0 +1,92 @@
+name: Test central local
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        no: [ 0, 1, 2 ]
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Poetry
+        run: curl -sSL https://install.python-poetry.org | python3 - --version 1.8.2
+
+      - name: Download and install binaries
+        run: |
+          /bin/bash download_binaries.sh
+
+      - name: Install binaries
+        run: |
+          sudo mkdir -p /usr/lib/yagna
+          sudo mv golem/downloaded/plugins /usr/lib/yagna/plugins
+          sudo mv golem/downloaded/* /usr/bin/
+
+      - name: Test binaries
+        run: |
+          yagna --version
+          ya-provider --version
+          ya-provider exe-unit list --json
+        env:
+          YA_CONSENT_INTERNAL: "allow"
+          YA_CONSENT_EXTERNAL: "allow"
+
+      - name: Prepare runtime
+        run: |
+          /bin/bash prepare_runtime.sh
+
+      - name: Run router
+        run: |
+          ya-sb-router -l tcp://0.0.0.0:5555&
+          sleep 1
+
+      - name: Run requestor
+        run: |
+          cd golem/requestor
+          cat .env
+          yagna service run&
+
+      - name: Run provider
+        run: |
+          sudo chown $USER /dev/kvm 
+          cd golem/provider_0
+          cat .env
+          golemsp setup --no-interactive
+          yagna service run&
+          sleep 6
+          ya-provider run&
+          sleep 4
+        env:
+          YA_CONSENT_INTERNAL: "allow"
+          YA_CONSENT_EXTERNAL: "allow"
+
+      - name: Test yagna provider payment response
+        run: |
+          cd golem/provider_0
+          yagna version show
+          yagna payment status
+
+      - name: Test yagna requestor payment response
+        run: |
+          yagna version show
+          yagna payment status
+
+      - name: Requestor app-key list
+        run: |
+          cd golem/requestor
+          yagna app-key list
+
+      - name: Run jsexecutor example
+        run: |
+          cd examples/debitnotetest
+          npm install
+          npm run run
+
+
