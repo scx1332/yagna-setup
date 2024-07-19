@@ -10,7 +10,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        no: [ 0, 1, 2 ]
+        timeout: [ 10, 15, 20, 30 ]
+        interval: [ 15, 20 ]
     timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
@@ -88,5 +89,8 @@ jobs:
           cd examples/debitnotetest
           npm install
           npm run run
+        env:
+          DEBIT_NOTE_TIMEOUT: ${{ matrix.timeout }}
+          DEBIT_NOTE_INTERVAL: ${{ matrix.interval }}
 
 

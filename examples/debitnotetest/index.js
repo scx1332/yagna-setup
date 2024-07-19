@@ -22,7 +22,8 @@ const myProposalFilter = (proposal) =>
 
 const subnetTag = process.env.YAGNA_SUBNET || "public";
 const appKey = process.env.YAGNA_APPKEY || "66iiOdkvV29";
-
+const debitNoteTimeout = process.env.DEBIT_NOTE_TIMEOUT || 10;
+const debitNoteInterval = process.env.DEBIT_NOTE_INTERVAL || 15;
 const order = {
     demand: {
         workload: { imageTag: "golem/alpine:latest" },
