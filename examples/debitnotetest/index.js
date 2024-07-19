@@ -20,6 +20,9 @@ const myDebitNoteFilter = async (debitNote, context) => {
 const myProposalFilter = (proposal) =>
     Boolean(proposal.provider.name.indexOf("testnet") == -1);
 
+const subnetTag = process.env.YAGNA_SUBNET || "public";
+const appKey = process.env.YAGNA_APPKEY || "66iiOdkvV29";
+
 const order = {
     demand: {
         workload: { imageTag: "golem/alpine:latest" },
@@ -28,7 +31,7 @@ const order = {
             midAgreementDebitNoteIntervalSec: 152,
             midAgreementPaymentTimeoutSec: 1200,
         },
-        //subnetTag: "jackla",
+        subnetTag: subnetTag,
     },
     market: {
         rentHours: 13,
@@ -54,7 +57,7 @@ const order = {
         logger: pinoPrettyLogger({
             level: "info",
         }),
-        api: { key: "try_golem" },
+        api: { key: appKey },
     });
 
     try {
