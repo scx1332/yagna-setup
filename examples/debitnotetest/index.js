@@ -1,5 +1,6 @@
 import { GolemNetwork } from "@golem-sdk/golem-js";
 import { pinoPrettyLogger } from "@golem-sdk/pino-logger";
+import 'dotenv/config'
 
 let proposalDiplayed = false;
 let nodeID = "";
