@@ -27,8 +27,8 @@ const order = {
     demand: {
         workload: { imageTag: "golem/alpine:latest" },
         payment: {
-            debitNotesAcceptanceTimeoutSec: 125,
-            midAgreementDebitNoteIntervalSec: 152,
+            debitNotesAcceptanceTimeoutSec: 10,
+            midAgreementDebitNoteIntervalSec: 15,
             midAgreementPaymentTimeoutSec: 1200,
         },
         subnetTag: subnetTag,
