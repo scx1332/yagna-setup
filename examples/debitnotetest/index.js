@@ -146,7 +146,7 @@ const order = {
         const rental = await glm.oneOf({ order });
         await rental
             .getExeUnit()
-            .then((exe) => exe.run("echo Hello, Golem! 👋"))
+            .then((exe) => exe.run("sleep 600"))
             .then((res) => console.log(res.stdout));
         await rental.stopAndFinalize();
     } catch (err) {
