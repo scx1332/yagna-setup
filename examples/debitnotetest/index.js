@@ -1,145 +1,153 @@
-import {
-    TaskExecutor,
-    pinoPrettyLogger,
-} from "@golem-sdk/task-executor";
-import {program} from "commander";
-import {fileURLToPath} from "url";
-import 'dotenv/config'
+import { GolemNetwork } from "@golem-sdk/golem-js";
+import { pinoPrettyLogger } from "@golem-sdk/pino-logger";
 
-const DIR_NAME = fileURLToPath(new URL(".", import.meta.url));
+let proposalDiplayed = false;
+let nodeID = "";
 
-const getTimeStamp = () => {
-    return (
-        "[" + new Date().toISOString().split("T").pop().split("Z").shift() + "]"
-    );
-};
+const debitNotesRecevied = [];
 
-const parseDebitNote = (dn) => {
-    return (
-        dn.id +
-        " " +
-        dn.activityId +
-        " " +
-        dn.agreementId +
-        " " +
-        dn.totalAmountDue +
-        " " +
-        dn.usageCounterVector[0] +
-        " " +
-        dn.usageCounterVector[1]
-    );
-};
-
-const blenderParams = (frame) => ({
-    scene_file: "/golem/resource/scene.blend",
-    resolution: [400 * 2, 300 * 2],
-    use_compositing: false,
-    crops: [
-        {
-            outfilebasename: "out",
-            borders_x: [0.0, 1.0],
-            borders_y: [0.0, 1.0],
-        },
-    ],
-    samples: 100,
-    frames: [frame],
-    output_format: "PNG",
-    RESOURCES_DIR: "/golem/resources",
-    WORK_DIR: "/golem/work",
-    OUTPUT_DIR: "/golem/output",
-});
-
-const myDebitNoteFilter = async (dbnote) => {
-    console.log(getTimeStamp(), "debitnote-data", parseDebitNote(dbnote));
+const myDebitNoteFilter = async (debitNote, context) => {
+    //console.debug("Fiter: ", debitNote);
+    if (debitNotesRecevied.push(debitNote.id) == 2) {
+        console.log("delaying 3rd debitnote");
+        await new Promise((res) => setTimeout(res, 130 * 1000));
+        return true;
+    }
     return true;
 };
 
-async function main() {
-    const subnetTag = process.env.YAGNA_SUBNET || "public";
-    const appKey = process.env.YAGNA_APPKEY || "66iiOdkvV29";
-    const executor = await TaskExecutor.create({
-        subnetTag: subnetTag,
-        //payment: { driver: "erc20", network: "goerli" },
-        package: "golem/blender:latest",
-        //maxParallelTasks,
-        logger: pinoPrettyLogger(),
-        yagnaOptions: {apiKey: appKey},
-        debitNotesFilter: myDebitNoteFilter,
-        activityExeBatchResultPollIntervalSeconds: 5,
-        taskTimeout: 1000 * 60 * 60,
-        expirationSec: 60 * 60 * 2,
+const myProposalFilter = (proposal) =>
+    Boolean(proposal.provider.name.indexOf("testnet") == -1);
+
+const order = {
+    demand: {
+        workload: { imageTag: "golem/alpine:latest" },
+        payment: {
+            debitNotesAcceptanceTimeoutSec: 125,
+            midAgreementDebitNoteIntervalSec: 152,
+            midAgreementPaymentTimeoutSec: 1200,
+        },
+        //subnetTag: "jackla",
+    },
+    market: {
+        rentHours: 13,
+        pricing: {
+            model: "linear",
+            maxStartPrice: 0.5,
+            maxCpuPerHourPrice: 1.0,
+            maxEnvPerHourPrice: 0.5,
+        },
+        offerProposalFilter: myProposalFilter,
+    },
+    activity: {
+        activityExeBatchResultPollIntervalSeconds: 10,
         activityExeBatchResultMaxRetries: 20,
+    },
+    payment: {
+        debitNoteFilter: myDebitNoteFilter,
+    },
+};
+
+(async () => {
+    const glm = new GolemNetwork({
+        logger: pinoPrettyLogger({
+            level: "info",
+        }),
+        api: { key: "try_golem" },
     });
 
     try {
-        executor.onActivityReady(async (ctx) => {
-            console.log("Uploading the scene to the provider %s", ctx.provider.name);
-            await ctx.uploadFile(
-                `${DIR_NAME}/cubes.blend`,
-                "/golem/resource/scene.blend"
-            );
+        await glm.connect();
+
+        glm.market.events.on("agreementApproved", (event) => {
             console.log(
-                "Upload of the scene to the provider %s finished",
-                ctx.provider.name
+                "agreementApproved",
+                "AT:",
+                event.agreement.model.offer.properties[
+                    "golem.com.payment.debit-notes.accept-timeout?"
+                    ],
+                "DNI:",
+                event.agreement.model.offer.properties[
+                    "golem.com.scheme.payu.debit-note.interval-sec?"
+                    ],
+                "PT:",
+                event.agreement.model.offer.properties[
+                    "golem.com.scheme.payu.payment-timeout-sec?"
+                    ]
+            );
+        });
+        glm.market.events.on("agreementTerminated", (event) => {
+            console.log("agreementTerminated", event.agreement.id);
+        });
+        glm.market.events.on("offerProposalReceived", (event) => {
+            if (!proposalDiplayed || nodeID == event.offerProposal.provider.id)
+                console.log(
+                    "offerProposalReceived",
+                    "AT:",
+                    event.offerProposal.properties[
+                        "golem.com.payment.debit-notes.accept-timeout?"
+                        ],
+                    "DNI:",
+                    event.offerProposal.properties[
+                        "golem.com.scheme.payu.debit-note.interval-sec?"
+                        ],
+                    "PT:",
+                    event.offerProposal.properties[
+                        "golem.com.scheme.payu.payment-timeout-sec?"
+                        ]
+                );
+            nodeID = event.offerProposal.provider.id;
+            //.log(nodeID);
+
+            proposalDiplayed = true;
+        });
+
+        glm.payment.events.on("debitNoteReceived", (event) => {
+            console.log(
+                "debitNoteReceived",
+                event.debitNote.id,
+                event.debitNote.model.timestamp,
+                event.debitNote.model.paymentDueDate,
+                event.debitNote.model.totalAmountDue,
+                event.debitNote.model.usageCounterVector
+            );
+        });
+        glm.payment.events.on("debitNoteAccepted", (event) => {
+            console.log(
+                "debitNoteAccepted",
+                event.debitNote.id,
+                event.debitNote.model.timestamp,
+                event.debitNote.model.paymentDueDate,
+                event.debitNote.model.totalAmountDue,
+                event.debitNote.model.usageCounterVector
+            );
+        });
+        glm.payment.events.on("debitNoteRejected", (event) => {
+            console.log("debitNoteRejected", event);
+        });
+        glm.payment.events.on("errorAcceptingDebitNote", (event) => {
+            console.log("errorAcceptingDebitNote", event);
+        });
+        glm.payment.events.on("errorRejectingDebitNote", (event) => {
+            console.log(
+                "errorRejectingDebitNote",
+                event.debitNote.id,
+                event.debitNote.model.timestamp,
+                event.debitNote.model.paymentDueDate,
+                event.debitNote.model.totalAmountDue,
+                event.debitNote.model.usageCounterVector
             );
         });
 
-        const futureResults = [0].map(async (frame) =>
-            executor.run(async (ctx) => {
-                console.log(
-                    "Started rendering of frame %d on provider %s",
-                    frame,
-                    ctx.provider.name
-                );
-
-                const result = await ctx
-                    .beginBatch()
-                    .uploadJson(blenderParams(frame), "/golem/work/params.json")
-                    .run("/golem/entrypoints/run-blender.sh")
-                    .downloadFile(
-                        `/golem/output/out${frame?.toString().padStart(4, "0")}.png`,
-                        `${DIR_NAME}/output_${frame}.png`
-                    )
-                    .end();
-
-                console.log(
-                    "Finished rendering of frame %d on provider %s",
-                    frame,
-                    ctx.provider.name
-                );
-
-                return result?.length ? `output_${frame}.png` : "";
-            })
-        );
-
-        console.log("Scheduling all tasks");
-        const results = await Promise.all(futureResults);
-        console.log("Completed all tasks");
-
-        results.forEach((result) => console.log(result));
-    } catch (error) {
-        console.error("Computation failed:", error);
+        const rental = await glm.oneOf({ order });
+        await rental
+            .getExeUnit()
+            .then((exe) => exe.run("echo Hello, Golem! 👋"))
+            .then((res) => console.log(res.stdout));
+        await rental.stopAndFinalize();
+    } catch (err) {
+        console.error("Failed to run the example", err);
     } finally {
-        await executor.shutdown();
+        await glm.disconnect();
     }
-}
-
-program
-    .option("--subnet-tag <subnet>", "set subnet name, for example 'public'")
-    .option(
-        "--payment-driver, --driver <driver>",
-        "payment driver name, for example 'erc20'"
-    )
-    .option(
-        "--payment-network, --network <network>",
-        "network name, for example 'holesky'"
-    )
-    .option("-t, --max-parallel-tasks <maxParallelTasks>", "max parallel tasks");
-program.parse();
-const options = program.opts();
-main(
-    options.subnetTag,
-    options.driver,
-    options.network,
-    options.maxParallelTasks
-);
+})().catch(console.error);
