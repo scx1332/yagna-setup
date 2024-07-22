@@ -7,6 +7,7 @@ let nodeID = "";
 
 const debitNotesReceived = [];
 
+const history = [];
 
 const lostDebitNotes = [2, 3];
 
@@ -72,6 +73,11 @@ const order = {
 
     try {
         await glm.connect();
+        history.push({
+            "time": new Date().toISOString(),
+            "info": "glmConnected",
+            "extra": `Connected to yagna with app key ${appKey} and subnet tag ${subnetTag}`
+        });
 
         glm.market.events.on("agreementApproved", (event) => {
             console.log(
@@ -91,6 +97,11 @@ const order = {
             );
         });
         glm.market.events.on("agreementTerminated", (event) => {
+            history.push({
+                "time": new Date().toISOString(),
+                "info": "agreementTerminated",
+                "extra": `Terminated agreement ${event.agreement.id}`
+            });
             console.log("agreementTerminated", event.agreement.id);
         });
         glm.market.events.on("offerProposalReceived", (event) => {
@@ -195,5 +206,15 @@ const order = {
         console.error("Failed to run the example", err);
     } finally {
         await glm.disconnect();
+        history.push({
+            "time": new Date().toISOString(),
+            "info": "glmDisconnected",
+            "extra": `Disconnected from yagna`
+        });
+
+        console.log("History (summary):");
+        for (let i = 0; i < history.length; i++) {
+            console.log(`${i}: ${history[i].time} - ${history[i].info} - ${history[i].extra}`);
+        }
     }
 })().catch(console.error);
