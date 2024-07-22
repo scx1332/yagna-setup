@@ -14,7 +14,7 @@ jobs:
           - id: 0
             timeout: 55
             interval: 15
-            notes_lost: "2,3"
+            notes_lost: "2;3"
           - id: 1
             timeout: 60
             interval: 20

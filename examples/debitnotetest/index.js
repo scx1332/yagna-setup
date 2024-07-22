@@ -11,7 +11,7 @@ const history = [];
 
 const lostDebitNotes = [];
 const debitNotesLost = process.env.DEBIT_NOTES_LOST || "-1";
-debitNotesLost.split(",").forEach((item) => {
+debitNotesLost.split(";").forEach((item) => {
     lostDebitNotes.push(parseInt(item));
 })
 console.log(`Lost debit notes used in example: ${lostDebitNotes}`);
