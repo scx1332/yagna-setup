@@ -35,6 +35,14 @@ jobs:
           sudo mv golem/downloaded/plugins /usr/lib/yagna/plugins
           sudo mv golem/downloaded/* /usr/bin/
 
+      - name: Install golem-js
+        run: |
+          cd examples
+          git clone https://github.com/golemfactory/golem-js.git
+          cd golem-js
+          npm install
+          npm run build
+
       - name: Test binaries
         run: |
           yagna --version
