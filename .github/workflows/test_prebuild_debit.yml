@@ -107,7 +107,7 @@ jobs:
 
       - name: Stop provider
         run: |
-          cd golem/requestor
+          cd golem/provider_0
           yagna service shutdown
 
       - name: Prepare requestor logs
