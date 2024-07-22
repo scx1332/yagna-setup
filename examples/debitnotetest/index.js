@@ -9,7 +9,12 @@ const debitNotesReceived = [];
 
 const history = [];
 
-const lostDebitNotes = [2, 3];
+const lostDebitNotes = [];
+const debitNotesLost = parseInt(process.env.DEBIT_NOTES_LOST || "-1");
+debitNotesLost.split(",").forEach((item) => {
+    lostDebitNotes.push(parseInt(item));
+})
+console.log(`Lost debit notes used in example: ${lostDebitNotes}`);
 
 const myDebitNoteFilter = async (debitNote, context) => {
     let debitNo = debitNotesReceived.push(debitNote.id);
@@ -44,6 +49,7 @@ const myProposalFilter = (proposal) =>
 
 const subnetTag = process.env.YAGNA_SUBNET || "public";
 const appKey = process.env.YAGNA_APPKEY || "66iiOdkvV29";
+
 const debitNoteTimeout = parseInt(process.env.DEBIT_NOTE_TIMEOUT || "10");
 const debitNoteInterval = parseInt(process.env.DEBIT_NOTE_INTERVAL || "15");
 const order = {

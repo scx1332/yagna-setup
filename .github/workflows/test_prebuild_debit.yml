@@ -10,8 +10,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        timeout: [ 55 ]
-        interval: [ 15 ]
+        include:
+          - timeout: 55
+            interval: 15
+            notes_lost: "2,3"
+          - timeout: 60
+            interval: 20
+            notes_lost: "-1"
+
     timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
@@ -92,5 +98,5 @@ jobs:
         env:
           DEBIT_NOTE_TIMEOUT: ${{ matrix.timeout }}
           DEBIT_NOTE_INTERVAL: ${{ matrix.interval }}
-
+          DEBIT_NOTES_LOST: ${{ matrix.notes_lost }}
 
