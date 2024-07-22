@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        timeout: [ 25 ]
+        timeout: [ 55 ]
         interval: [ 15 ]
     timeout-minutes: 20
     runs-on: ubuntu-latest
