@@ -35,7 +35,7 @@ const myDebitNoteFilter = async (debitNote, context) => {
 
 function convertTimeStamp(date) {
     return (
-        "[" + date.split("T").pop().split("Z").shift() + "]"
+        "[" + date.toISOString().split("T").pop().split("Z").shift() + "]"
     );
 };
 
