@@ -58,6 +58,8 @@ jobs:
           cd golem/requestor
           cat .env
           yagna service run&
+          sleep 4
+          env > yagnadir/env.log
 
       - name: Run provider
         run: |
@@ -69,6 +71,8 @@ jobs:
           sleep 6
           ya-provider run&
           sleep 4
+          env > yagnadir/env.log
+          env > providerdir/env.log
         env:
           YA_CONSENT_INTERNAL: "allow"
           YA_CONSENT_EXTERNAL: "allow"
@@ -94,7 +98,8 @@ jobs:
           cd examples/debitnotetest
           mkdir -p log
           npm install | tee log/npm_install.log
-          # npm run run
+          npm run run | tee log/npm_run.log
+          env > log/env.log
         env:
           DEBIT_NOTE_TIMEOUT: ${{ matrix.timeout }}
           DEBIT_NOTE_INTERVAL: ${{ matrix.interval }}
