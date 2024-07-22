@@ -82,7 +82,7 @@ const order = {
     },
 };
 
-async function run() {
+async function main() {
     const glm = new GolemNetwork({
         logger: pinoPrettyLogger({
             level: "info",
@@ -275,7 +275,7 @@ async function run() {
     }
 }
 
-run().then(() => {
+main().then(() => {
     console.log("Example finished");
 }).catch((err) => {
     console.error("Example failed", err);
