@@ -26,8 +26,9 @@ const myDebitNoteFilter = async (debitNote, context) => {
             "info": "delayingDebitNote",
             "extra": `Delaying debit note no ${debitNo}`
         });
-        await new Promise((res) => setTimeout(res, 130 * 1000));
-        return true;
+        throw new Error("Debit note ignored");
+        //await new Promise((res) => setTimeout(res, 130 * 1000));
+        //return true;
     }
     return true;
 };
