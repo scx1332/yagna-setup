@@ -82,7 +82,7 @@ const order = {
     },
 };
 
-(async () => {
+async function run() {
     const glm = new GolemNetwork({
         logger: pinoPrettyLogger({
             level: "info",
@@ -273,4 +273,11 @@ const order = {
             console.log(`${i}: ${elapsedSeconds}s ${convertTimeStamp(history[i].time)} - ${history[i].info} - ${history[i].extra}`);
         }
     }
-})().catch(console.error);
+}
+
+run().then(() => {
+    console.log("Example finished");
+}).catch((err) => {
+    console.error("Example failed", err);
+    process.exit(1);
+});
