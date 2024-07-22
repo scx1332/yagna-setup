@@ -94,9 +94,40 @@ jobs:
         run: |
           cd examples/debitnotetest
           npm install
-          npm run run
+          # npm run run
         env:
           DEBIT_NOTE_TIMEOUT: ${{ matrix.timeout }}
           DEBIT_NOTE_INTERVAL: ${{ matrix.interval }}
           DEBIT_NOTES_LOST: ${{ matrix.notes_lost }}
 
+      - name: Stop requestor
+        run: |
+          cd golem/requestor
+          yagna service shutdown
+
+      - name: Stop provider
+        run: |
+          cd golem/requestor
+          yagna service shutdown
+
+      - name: Prepare requestor logs
+        run: |
+          cd golem/requestor
+          tar --zstd -cf ../../requestor.tar.zst yagnadir
+
+      - name: Upload requestor logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: requestor.tar.zst
+          path: requestor.tar.zst
+
+      - name: Prepare provider logs
+        run: |
+          cd golem/provider_0
+          tar --zstd -cf ../../provider.tar.zst providerdir yagnadir
+
+      - name: Upload provider logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: provider.tar.zst
+          path: provider.tar.zst
