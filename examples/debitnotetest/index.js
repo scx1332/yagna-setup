@@ -2,15 +2,19 @@ import { GolemNetwork } from "@golem-sdk/golem-js";
 import { pinoPrettyLogger } from "@golem-sdk/pino-logger";
 import 'dotenv/config'
 
-let proposalDiplayed = false;
+let proposalDisplayed = false;
 let nodeID = "";
 
-const debitNotesRecevied = [];
+const debitNotesReceived = [];
+
+
+const lostDebitNotes = [2, 3];
 
 const myDebitNoteFilter = async (debitNote, context) => {
-    //console.debug("Fiter: ", debitNote);
-    if (debitNotesRecevied.push(debitNote.id) == 2) {
-        console.log("delaying 3rd debitnote");
+    let debitNo = debitNotesReceived.push(debitNote.id);
+
+    if (lostDebitNotes.includes(debitNo)) {
+        console.log(`delaying debit note no ${debitNo}`);
         await new Promise((res) => setTimeout(res, 130 * 1000));
         return true;
     }
@@ -90,7 +94,7 @@ const order = {
             console.log("agreementTerminated", event.agreement.id);
         });
         glm.market.events.on("offerProposalReceived", (event) => {
-            if (!proposalDiplayed || nodeID == event.offerProposal.provider.id)
+            if (!proposalDisplayed || nodeID == event.offerProposal.provider.id)
                 console.log(
                     "offerProposalReceived",
                     "AT:",
@@ -109,7 +113,7 @@ const order = {
             nodeID = event.offerProposal.provider.id;
             //.log(nodeID);
 
-            proposalDiplayed = true;
+            proposalDisplayed = true;
         });
 
         glm.payment.events.on("debitNoteReceived", (event) => {
