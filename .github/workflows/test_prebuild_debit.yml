@@ -11,10 +11,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - timeout: 55
+          - id: 0
+            timeout: 55
             interval: 15
             notes_lost: "2,3"
-          - timeout: 60
+          - id: 1
+            timeout: 60
             interval: 20
             notes_lost: "-1"
 
@@ -113,21 +115,21 @@ jobs:
       - name: Prepare requestor logs
         run: |
           cd golem/requestor
-          tar --zstd -cf ../../requestor.tar.zst yagnadir
+          tar --zstd -cf ../../requestor_${{ matrix.id }}.tar.zst yagnadir
 
       - name: Upload requestor logs
         uses: actions/upload-artifact@v4
         with:
-          name: requestor.tar.zst
-          path: requestor.tar.zst
+          name: requestor_${{ matrix.id }}.tar.zst
+          path: requestor_${{ matrix.id }}.tar.zst
 
       - name: Prepare provider logs
         run: |
           cd golem/provider_0
-          tar --zstd -cf ../../provider.tar.zst providerdir yagnadir
+          tar --zstd -cf ../../provider_${{ matrix.id }}.tar.zst providerdir yagnadir
 
       - name: Upload provider logs
         uses: actions/upload-artifact@v4
         with:
-          name: provider.tar.zst
-          path: provider.tar.zst
+          name: provider_${{ matrix.id }}.tar.zst
+          path: provider_${{ matrix.id }}.tar.zst
