@@ -24,7 +24,7 @@ const myDebitNoteFilter = async (debitNote, context) => {
 
 const getTimeStamp = () => {
     return (
-        "[" + new Date().toISOString().split("T").pop().split("Z").shift() + "]"
+        "[" + new Date().split("T").pop().split("Z").shift() + "]"
     );
 };
 const myProposalFilter = (proposal) =>
@@ -74,7 +74,7 @@ const order = {
     try {
         await glm.connect();
         history.push({
-            "time": new Date().toISOString(),
+            "time": new Date(),
             "info": "glmConnected",
             "extra": `Connected to yagna with app key ${appKey} and subnet tag ${subnetTag}`
         });
@@ -98,7 +98,7 @@ const order = {
         });
         glm.market.events.on("agreementTerminated", (event) => {
             history.push({
-                "time": new Date().toISOString(),
+                "time": new Date(),
                 "info": "agreementTerminated",
                 "extra": `Terminated agreement ${event.agreement.id}`
             });
@@ -138,6 +138,12 @@ const order = {
             );
         });
         glm.payment.events.on("debitNoteAccepted", (event) => {
+            history.push({
+                "time": new Date(),
+                "info": "debitNoteAccepted",
+                "extra": `Accepted debit note ${event.debitNote.id}`
+            });
+
             console.log(
                 "debitNoteAccepted",
                 event.debitNote.id,
@@ -207,14 +213,17 @@ const order = {
     } finally {
         await glm.disconnect();
         history.push({
-            "time": new Date().toISOString(),
+            "time": new Date(),
             "info": "glmDisconnected",
             "extra": `Disconnected from yagna`
         });
 
         console.log("History (summary):");
+        let startDate = history[0].time;
         for (let i = 0; i < history.length; i++) {
-            console.log(`${i}: ${history[i].time} - ${history[i].info} - ${history[i].extra}`);
+            let elapsed = history[i].time - startDate;
+            let elapsedSeconds = elapsed / 1000.0;
+            console.log(`${i}: ${elapsedSeconds}s ${history[i].time} - ${history[i].info} - ${history[i].extra}`);
         }
     }
 })().catch(console.error);
