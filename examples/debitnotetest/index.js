@@ -22,18 +22,17 @@ const myDebitNoteFilter = async (debitNote, context) => {
     return true;
 };
 
-const getTimeStamp = () => {
+
+function convertTimeStamp(date) {
     return (
-        "[" + new Date().toISOString().split("T").pop().split("Z").shift() + "]"
+        "[" + date.split("T").pop().split("Z").shift() + "]"
     );
 };
 
-function formatTime(date) {
-    let hours = date.getHours().toString().padStart(2, '0');
-    let minutes = date.getMinutes().toString().padStart(2, '0');
-    let seconds = date.getSeconds().toString().padStart(2, '0');
-    return `${hours}:${minutes}:${seconds}`;
+function getTimeStamp() {
+    return convertTimeStamp(new Date());
 }
+
 
 
 const myProposalFilter = (proposal) =>
@@ -255,7 +254,7 @@ const order = {
         for (let i = 0; i < history.length; i++) {
             let elapsed = history[i].time - startDate;
             let elapsedSeconds = elapsed / 1000.0;
-            console.log(`${i}: ${elapsedSeconds}s ${formatTime(history[i].time)} - ${history[i].info} - ${history[i].extra}`);
+            console.log(`${i}: ${elapsedSeconds}s ${convertTimeStamp(history[i].time)} - ${history[i].info} - ${history[i].extra}`);
         }
     }
 })().catch(console.error);
