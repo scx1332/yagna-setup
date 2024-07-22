@@ -27,6 +27,15 @@ const getTimeStamp = () => {
         "[" + new Date().split("T").pop().split("Z").shift() + "]"
     );
 };
+
+function formatTime(date) {
+    let hours = date.getHours().toString().padStart(2, '0');
+    let minutes = date.getMinutes().toString().padStart(2, '0');
+    let seconds = date.getSeconds().toString().padStart(2, '0');
+    return `${hours}:${minutes}:${seconds}`;
+}
+
+
 const myProposalFilter = (proposal) =>
     Boolean(proposal.provider.name.indexOf("testnet") == -1);
 
@@ -80,6 +89,11 @@ const order = {
         });
 
         glm.market.events.on("agreementApproved", (event) => {
+            history.push({
+                "time": new Date(),
+                "info": "agreementApproved",
+                "extra": `Approved agreement ${event.agreement.id}`
+            });
             console.log(
                 "agreementApproved",
                 "AT:",
@@ -128,6 +142,13 @@ const order = {
         });
 
         glm.payment.events.on("debitNoteReceived", (event) => {
+            history.push({
+                "time": new Date(),
+                "info": "debitNoteReceived",
+                "extra": `Received debit note ${event.debitNote.id}`
+            });
+
+
             console.log(
                 "debitNoteReceived",
                 event.debitNote.id,
@@ -154,6 +175,12 @@ const order = {
             );
         });
         glm.payment.events.on("debitNoteRejected", (event) => {
+            history.push({
+                "time": new Date(),
+                "info": "debitNoteRejected",
+                "extra": `Rejected debit note ${event.debitNote.id}`
+            });
+
             console.log("debitNoteRejected", event);
         });
         glm.payment.events.on("errorAcceptingDebitNote", (event) => {
@@ -211,6 +238,11 @@ const order = {
     } catch (err) {
         console.error("Failed to run the example", err);
     } finally {
+        history.push({
+            "time": new Date(),
+            "info": "glmDisconnecting",
+            "extra": `Disconnecting from yagna`
+        });
         await glm.disconnect();
         history.push({
             "time": new Date(),
@@ -223,7 +255,7 @@ const order = {
         for (let i = 0; i < history.length; i++) {
             let elapsed = history[i].time - startDate;
             let elapsedSeconds = elapsed / 1000.0;
-            console.log(`${i}: ${elapsedSeconds}s ${history[i].time} - ${history[i].info} - ${history[i].extra}`);
+            console.log(`${i}: ${elapsedSeconds}s ${formatTime(history[i].time)} - ${history[i].info} - ${history[i].extra}`);
         }
     }
 })().catch(console.error);
