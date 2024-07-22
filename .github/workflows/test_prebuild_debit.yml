@@ -1,15 +1,17 @@
-name: Test hybrid public
+name: Test debit notes - central local
 on:
-  schedule:
-    - cron: '0 0 * * *'
-
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   test:
     strategy:
       fail-fast: false
       matrix:
-        no: [ 0, 1, 2 ]
+        timeout: [ 10, 15, 20, 30 ]
+        interval: [ 15, 20 ]
     timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
@@ -39,7 +41,12 @@ jobs:
 
       - name: Prepare runtime
         run: |
-          python advanced/prepare_runtime.py --mode hybrid
+          /bin/bash prepare_runtime.sh
+
+      - name: Run router
+        run: |
+          ya-sb-router -l tcp://0.0.0.0:5555&
+          sleep 1
 
       - name: Run requestor
         run: |
@@ -79,18 +86,11 @@ jobs:
 
       - name: Run jsexecutor example
         run: |
-          cd examples/jsexecutor
+          cd examples/debitnotetest
           npm install
           npm run run
-
-      - name: Prepare yapapi test
-        run: |
-          git clone https://github.com/golemfactory/yapapi.git
-          cd yapapi
-          poetry install
-          poetry run python examples/blender/blender.py --payment-network holesky
         env:
-          YAGNA_APPKEY: 66iiOdkvV29
-
+          DEBIT_NOTE_TIMEOUT: ${{ matrix.timeout }}
+          DEBIT_NOTE_INTERVAL: ${{ matrix.interval }}
 
 
