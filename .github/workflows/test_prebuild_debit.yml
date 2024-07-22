@@ -92,7 +92,8 @@ jobs:
       - name: Run jsexecutor example
         run: |
           cd examples/debitnotetest
-          npm install
+          mkdir -p log
+          npm install | tee log/npm_install.log
           # npm run run
         env:
           DEBIT_NOTE_TIMEOUT: ${{ matrix.timeout }}
@@ -109,24 +110,12 @@ jobs:
           cd golem/provider_0
           yagna service shutdown
 
-      - name: Prepare requestor logs
+      - name: Prepare logs
         run: |
-          cd golem/requestor
-          tar --zstd -cf ../../requestor_${{ matrix.id }}.tar.zst yagnadir
+          tar --zstd -cf ../../data_${{ matrix.id }}.tar.zst examples/debitnotetest/log golem/requestor/yagnadir golem/provider_0/providerdir golem/provider_0/yagnadir
 
-      - name: Upload requestor logs
+      - name: Upload logs
         uses: actions/upload-artifact@v4
         with:
-          name: requestor_${{ matrix.id }}.tar.zst
-          path: requestor_${{ matrix.id }}.tar.zst
-
-      - name: Prepare provider logs
-        run: |
-          cd golem/provider_0
-          tar --zstd -cf ../../provider_${{ matrix.id }}.tar.zst providerdir yagnadir
-
-      - name: Upload provider logs
-        uses: actions/upload-artifact@v4
-        with:
-          name: provider_${{ matrix.id }}.tar.zst
-          path: provider_${{ matrix.id }}.tar.zst
+          name: data_${{ matrix.id }}.tar.zst
+          path: data_${{ matrix.id }}.tar.zst
