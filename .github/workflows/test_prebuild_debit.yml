@@ -38,7 +38,7 @@ jobs:
       - name: Install golem-js
         run: |
           cd examples
-          git clone https://github.com/golemfactory/golem-js.git
+          git clone https://github.com/golemfactory/golem-js.git --tag v3.1.0
           cd golem-js
           npm install
           npm run build
