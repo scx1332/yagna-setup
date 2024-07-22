@@ -13,6 +13,6 @@
     "license": "ISC",
     "dependencies": {
         "@golem-sdk/golem-js": "file:../golem-js",
-        "dotenv": "^16.4.5"
+        "@golem-sdk/pino-logger": "^1.1"
     }
 }
