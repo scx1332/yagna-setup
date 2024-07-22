@@ -17,6 +17,11 @@ const myDebitNoteFilter = async (debitNote, context) => {
     return true;
 };
 
+const getTimeStamp = () => {
+    return (
+        "[" + new Date().toISOString().split("T").pop().split("Z").shift() + "]"
+    );
+};
 const myProposalFilter = (proposal) =>
     Boolean(proposal.provider.name.indexOf("testnet") == -1);
 
@@ -145,10 +150,41 @@ const order = {
         });
 
         const rental = await glm.oneOf({ order });
-        await rental
-            .getExeUnit()
-            .then((exe) => exe.run("sleep 600"))
-            .then((res) => console.log(res.stdout));
+
+        const exe = await rental.getExeUnit();
+        console.log(`Got exeUnit: ${getTimeStamp()}`);
+        exe.run("echo Hello, Golem! 👋").then((res) => console.log(res.stdout));
+
+        console.log(
+            "Started testing provider %s",
+            exe.provider.name
+        );
+
+        await exe.run("sleep 30");
+        console.log("Step 1 finished");
+        await exe.run("sleep 30");
+        console.log("Step 2 finished");
+        await exe.run("sleep 30");
+        console.log("Step 3 finished");
+        await exe.run("sleep 30");
+        console.log("Step 4 finished");
+        await exe.run("sleep 30");
+        console.log("Step 5 finished");
+        await exe.run("sleep 30");
+        console.log("Step 6 finished");
+        await exe.run("sleep 30");
+        console.log("Step 7 finished");
+        await exe.run("sleep 30");
+        console.log("Step 8 finished");
+        await exe.run("sleep 30");
+        console.log("Step 9 finished");
+        await exe.run("sleep 30");
+        console.log("Step 10 finished");
+
+        console.log(
+            "Finished testing on provider %s",
+            exe.provider.name
+        );
         await rental.stopAndFinalize();
     } catch (err) {
         console.error("Failed to run the example", err);
