@@ -1,5 +1,5 @@
-import { GolemNetwork } from "@golem-sdk/golem-js";
-import { pinoPrettyLogger } from "@golem-sdk/pino-logger";
+import {GolemNetwork} from "@golem-sdk/golem-js";
+import {pinoPrettyLogger} from "@golem-sdk/pino-logger";
 import 'dotenv/config'
 
 let proposalDisplayed = false;
@@ -35,7 +35,7 @@ const debitNoteTimeout = parseInt(process.env.DEBIT_NOTE_TIMEOUT || "10");
 const debitNoteInterval = parseInt(process.env.DEBIT_NOTE_INTERVAL || "15");
 const order = {
     demand: {
-        workload: { imageTag: "golem/alpine:latest" },
+        workload: {imageTag: "golem/alpine:latest"},
         payment: {
             debitNotesAcceptanceTimeoutSec: debitNoteTimeout,
             midAgreementDebitNoteIntervalSec: debitNoteInterval,
@@ -67,7 +67,7 @@ const order = {
         logger: pinoPrettyLogger({
             level: "info",
         }),
-        api: { key: appKey },
+        api: {key: appKey},
     });
 
     try {
@@ -153,7 +153,7 @@ const order = {
             );
         });
 
-        const rental = await glm.oneOf({ order });
+        const rental = await glm.oneOf({order});
 
         const exe = await rental.getExeUnit();
         console.log(`Got exeUnit: ${getTimeStamp()}`);
