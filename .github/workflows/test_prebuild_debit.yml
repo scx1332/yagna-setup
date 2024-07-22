@@ -112,7 +112,7 @@ jobs:
 
       - name: Prepare logs
         run: |
-          tar --zstd -cf ../../data_${{ matrix.id }}.tar.zst examples/debitnotetest/log golem/requestor/yagnadir golem/provider_0/providerdir golem/provider_0/yagnadir
+          tar --zstd -cf data_${{ matrix.id }}.tar.zst examples/debitnotetest/log golem/requestor/yagnadir golem/provider_0/providerdir golem/provider_0/yagnadir
 
       - name: Upload logs
         uses: actions/upload-artifact@v4
