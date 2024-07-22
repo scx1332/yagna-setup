@@ -33,7 +33,7 @@ jobs:
         run: |
           sudo mkdir -p /usr/lib/yagna
           sudo mv golem/downloaded/plugins /usr/lib/yagna/plugins
-          sudo mv golem/downloaded/* /usr/bin/
+          sudo mv golem/downloaded/* /usr/bin/ 
 
       - name: Install golem-js
         run: |
