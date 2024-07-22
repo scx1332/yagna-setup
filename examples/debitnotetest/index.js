@@ -10,7 +10,7 @@ const debitNotesReceived = [];
 const history = [];
 
 const lostDebitNotes = [];
-const debitNotesLost = parseInt(process.env.DEBIT_NOTES_LOST || "-1");
+const debitNotesLost = process.env.DEBIT_NOTES_LOST || "-1";
 debitNotesLost.split(",").forEach((item) => {
     lostDebitNotes.push(parseInt(item));
 })
