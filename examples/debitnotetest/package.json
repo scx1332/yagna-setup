@@ -12,7 +12,7 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "@golem-sdk/golem-js": "file:../golem-js",
+        "@golem-sdk/golem-js": "file:../golem-js/package.json",
         "dotenv": "^16.4.5"
     }
 }
