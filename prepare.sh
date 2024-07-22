@@ -23,3 +23,6 @@ git clone https://github.com/golemfactory/gvmkit-build-rs.git
 
 # clone yagna
 git clone https://github.com/golemfactory/yagna.git
+
+# clone golem-js
+git clone https://github.com/golemfactory/golem-js.git
