@@ -157,7 +157,8 @@ const order = {
 
         const exe = await rental.getExeUnit();
         console.log(`Got exeUnit: ${getTimeStamp()}`);
-        exe.run("echo Hello, Golem! 👋").then((res) => console.log(res.stdout));
+
+        await exe.run("echo Hello, Golem!");
 
         console.log(
             "Started testing provider %s",
