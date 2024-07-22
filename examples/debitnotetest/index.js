@@ -16,6 +16,11 @@ const myDebitNoteFilter = async (debitNote, context) => {
 
     if (lostDebitNotes.includes(debitNo)) {
         console.log(`delaying debit note no ${debitNo}`);
+        history.push({
+            "time": new Date(),
+            "info": "delayingDebitNote",
+            "extra": `Delaying debit note no ${debitNo}`
+        });
         await new Promise((res) => setTimeout(res, 130 * 1000));
         return true;
     }
@@ -32,7 +37,6 @@ function convertTimeStamp(date) {
 function getTimeStamp() {
     return convertTimeStamp(new Date());
 }
-
 
 
 const myProposalFilter = (proposal) =>
@@ -144,13 +148,13 @@ const order = {
             history.push({
                 "time": new Date(),
                 "info": "debitNoteReceived",
-                "extra": `Received debit note ${event.debitNote.id}`
+                "extra": `Received debit note ${event.debitNote.id.slice(0, 8)}...`
             });
 
 
             console.log(
                 "debitNoteReceived",
-                event.debitNote.id,
+                event.debitNote.id.slice(0, 8),
                 event.debitNote.model.timestamp,
                 event.debitNote.model.paymentDueDate,
                 event.debitNote.model.totalAmountDue,
@@ -161,12 +165,12 @@ const order = {
             history.push({
                 "time": new Date(),
                 "info": "debitNoteAccepted",
-                "extra": `Accepted debit note ${event.debitNote.id}`
+                "extra": `Accepted debit note ${event.debitNote.id.slice(0, 8)}`
             });
 
             console.log(
                 "debitNoteAccepted",
-                event.debitNote.id,
+                event.debitNote.id.slice(0, 8),
                 event.debitNote.model.timestamp,
                 event.debitNote.model.paymentDueDate,
                 event.debitNote.model.totalAmountDue,
@@ -177,7 +181,7 @@ const order = {
             history.push({
                 "time": new Date(),
                 "info": "debitNoteRejected",
-                "extra": `Rejected debit note ${event.debitNote.id}`
+                "extra": `Rejected debit note ${event.debitNote.id.slice(0, 8)}`
             });
 
             console.log("debitNoteRejected", event);
@@ -188,7 +192,7 @@ const order = {
         glm.payment.events.on("errorRejectingDebitNote", (event) => {
             console.log(
                 "errorRejectingDebitNote",
-                event.debitNote.id,
+                event.debitNote.id.slice(0, 8),
                 event.debitNote.model.timestamp,
                 event.debitNote.model.paymentDueDate,
                 event.debitNote.model.totalAmountDue,
@@ -235,6 +239,11 @@ const order = {
         );
         await rental.stopAndFinalize();
     } catch (err) {
+        history.push({
+            "time": new Date(),
+            "info": "error",
+            "extra": `Script error: ${err}`
+        });
         console.error("Failed to run the example", err);
     } finally {
         history.push({
