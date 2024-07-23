@@ -17,6 +17,7 @@ debitNotesLost.split(";").forEach((item) => {
     lostDebitNotes.push(parseInt(item));
 })
 console.log(`Lost debit notes used in example: ${lostDebitNotes}`);
+console.log(`Expected script results array: [${" ".join(expectedScriptResult)}]`);
 
 const myDebitNoteFilter = async (debitNote, context) => {
     let debitNo = debitNotesReceived.push(debitNote.id);
