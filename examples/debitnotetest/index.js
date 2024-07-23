@@ -249,6 +249,8 @@ function checkResults(jobFinishedSuccessfully) {
     if (expectedScriptResults.includes("terminated-early")) {
         let indexOfAgreementTerminated = history.findIndex((item) => item.info === "agreementTerminated");
         let indexOfScriptError = history.findIndex((item) => item.info === "error");
+
+        console.log(`indexOfAgreementTerminated: ${indexOfAgreementTerminated}, indexOfScriptError: ${indexOfScriptError}`);
         if (indexOfAgreementTerminated === -1) {
             console.error("Expected agreement termination not found in history");
             throw "Expected agreement termination not found in history";
@@ -257,11 +259,11 @@ function checkResults(jobFinishedSuccessfully) {
             console.error("Expected script error not found in history");
             throw "Expected script error not found in history";
         }
-        if (indexOfAgreementTerminated < indexOfScriptError) {
+        if (indexOfAgreementTerminated > indexOfScriptError) {
             console.error("Agreement was terminated before script error");
             throw "Agreement was terminated before script error";
         }
-        console.log("Agreement was terminated before script error - that is expected");
+        console.log("OK - Agreement was terminated before script error - that is expected");
     }
     if (jobFinishedSuccessfully) {
         if (!expectedScriptResults.includes("success")) {
