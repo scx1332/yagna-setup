@@ -11,6 +11,8 @@ const history = [];
 
 const lostDebitNotes = [];
 const debitNotesLost = process.env.DEBIT_NOTES_LOST || "-1";
+const expectedScriptResult = process.env.EXPECTED_SCRIPT_RESULT || "success";
+
 debitNotesLost.split(";").forEach((item) => {
     lostDebitNotes.push(parseInt(item));
 })
@@ -83,7 +85,7 @@ const order = {
 };
 
 
-async function connectAndRun() {
+async function connectAndRun(glm) {
     await glm.connect();
     history.push({
         "time": new Date(),
@@ -243,17 +245,20 @@ async function main() {
 
     let jobFinishedSuccessfully = null;
     try {
-        await connectAndRun();
-        jobFinishedSuccessfully = true;
+        await connectAndRun(glm);
+        if (expectedScriptResult !== "success") {
+            throw "Job succeeded but it was expected to fail";
+        }
     } catch (err) {
-        jobFinishedSuccessfully = false;
         history.push({
             "time": new Date(),
             "info": "error",
             "extra": `Script error: ${err}`
         });
         console.error("Failed to run the example", err);
-        throw err;
+        if (expectedScriptResult !== "failure") {
+            throw "Job failed but it was expected to succeed";
+        }
     } finally {
         history.push({
             "time": new Date(),
