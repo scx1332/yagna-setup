@@ -26,9 +26,9 @@ const myDebitNoteFilter = async (debitNote, context) => {
             "info": "delayingDebitNote",
             "extra": `Delaying debit note no ${debitNo}`
         });
-        throw new Error("Debit note ignored");
-        //await new Promise((res) => setTimeout(res, 130 * 1000));
-        //return true;
+        // Do not change message text,
+        // the value "ignore debit note" is captured by golem-js
+        throw "ignore debit note";
     }
     return true;
 };
