@@ -12,6 +12,11 @@ jobs:
       matrix:
         include:
           - id: 0
+            timeout: 110
+            interval: 50
+            notes_lost: "1"
+            expected_script_result: "success"
+          - id: 0
             timeout: 55
             interval: 15
             notes_lost: "2;3"
