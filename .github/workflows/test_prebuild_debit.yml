@@ -15,7 +15,7 @@ jobs:
             timeout: 55
             interval: 15
             notes_lost: "2;3"
-            expected_script_result: "failed"
+            expected_script_result: "failure;terminated-early"
           - id: 1
             timeout: 60
             interval: 20

@@ -11,7 +11,7 @@ const history = [];
 
 const lostDebitNotes = [];
 const debitNotesLost = process.env.DEBIT_NOTES_LOST || "-1";
-const expectedScriptResult = process.env.EXPECTED_SCRIPT_RESULT || "success";
+let expectedScriptResult = (process.env.EXPECTED_SCRIPT_RESULT || "success").split(";");
 
 debitNotesLost.split(";").forEach((item) => {
     lostDebitNotes.push(parseInt(item));
@@ -246,7 +246,7 @@ async function main() {
     let jobFinishedSuccessfully = null;
     try {
         await connectAndRun(glm);
-        if (expectedScriptResult !== "success") {
+        if (!expectedScriptResuls.includes("success")) {
             throw "Job succeeded but it was expected to fail";
         }
     } catch (err) {
@@ -256,7 +256,7 @@ async function main() {
             "extra": `Script error: ${err}`
         });
         console.error("Failed to run the example", err);
-        if (expectedScriptResult !== "failure") {
+        if (!expectedScriptResult.includes("failure")) {
             throw "Job failed but it was expected to succeed";
         }
     } finally {
@@ -278,6 +278,24 @@ async function main() {
             let elapsed = history[i].time - startDate;
             let elapsedSeconds = elapsed / 1000.0;
             console.log(`${i}: ${elapsedSeconds}s ${convertTimeStamp(history[i].time)} - ${history[i].info} - ${history[i].extra}`);
+        }
+
+        if (expectedScriptResult.includes("terminated-early")) {
+            let indexOfAgreementTerminated = history.findIndex((item) => item.info === "agreementTerminated");
+            let indexOfScriptError = history.findIndex((item) => item.info === "error");
+            if (indexOfAgreementTerminated === -1) {
+                console.error("Expected agreement termination not found in history");
+                throw "Expected agreement termination not found in history";
+            }
+            if (indexOfScriptError === -1) {
+                console.error("Expected script error not found in history");
+                throw "Expected script error not found in history";
+            }
+            if (indexOfAgreementTerminated < indexOfScriptError) {
+                console.error("Agreement was terminated before script error");
+                throw "Agreement was terminated before script error";
+            }
+            console.log("Agreement was terminated before script error - that is expected");
         }
     }
 }
