@@ -11,7 +11,7 @@ const history = [];
 
 const lostDebitNotes = [];
 const debitNotesLost = process.env.DEBIT_NOTES_LOST || "-1";
-let expectedScriptResult = (process.env.EXPECTED_SCRIPT_RESULT || "success").split(";");
+let expectedScriptResults = (process.env.EXPECTED_SCRIPT_RESULT || "success").split(";");
 
 debitNotesLost.split(";").forEach((item) => {
     lostDebitNotes.push(parseInt(item));
@@ -19,7 +19,7 @@ debitNotesLost.split(";").forEach((item) => {
 console.log(`Lost debit notes used in example: ${lostDebitNotes}`);
 console.log(`Expected script results array: [${" ".join(expectedScriptResult)}]`);
 
-const myDebitNoteFilter = async (debitNote, context) => {
+const myDebitNoteFilter = async (debitNote, _context) => {
     let debitNo = debitNotesReceived.push(debitNote.id);
 
     if (lostDebitNotes.includes(debitNo)) {
@@ -41,7 +41,7 @@ function convertTimeStamp(date) {
     return (
         "[" + date.toISOString().split("T").pop().split("Z").shift() + "]"
     );
-};
+}
 
 function getTimeStamp() {
     return convertTimeStamp(new Date());
@@ -49,7 +49,7 @@ function getTimeStamp() {
 
 
 const myProposalFilter = (proposal) =>
-    Boolean(proposal.provider.name.indexOf("testnet") == -1);
+    Boolean(proposal.provider.name.indexOf("testnet") === -1);
 
 const subnetTag = process.env.YAGNA_SUBNET || "public";
 const appKey = process.env.YAGNA_APPKEY || "66iiOdkvV29";
@@ -125,7 +125,7 @@ async function connectAndRun(glm) {
         console.log("agreementTerminated", event.agreement.id);
     });
     glm.market.events.on("offerProposalReceived", (event) => {
-        if (!proposalDisplayed || nodeID == event.offerProposal.provider.id)
+        if (!proposalDisplayed || nodeID === event.offerProposal.provider.id)
             console.log(
                 "offerProposalReceived",
                 "AT:",
@@ -244,59 +244,64 @@ async function main() {
         api: {key: appKey},
     });
 
-    let jobFinishedSuccessfully = null;
+    let jobFinishedSuccessfully;
     try {
         await connectAndRun(glm);
-        if (!expectedScriptResuls.includes("success")) {
-            throw "Job succeeded but it was expected to fail";
-        }
+        jobFinishedSuccessfully = true;
     } catch (err) {
+        jobFinishedSuccessfully = false;
         history.push({
             "time": new Date(),
             "info": "error",
             "extra": `Script error: ${err}`
         });
         console.error("Failed to run the example", err);
-        if (!expectedScriptResult.includes("failure")) {
+    }
+
+    history.push({
+        "time": new Date(),
+        "info": "glmDisconnecting",
+        "extra": `Disconnecting from yagna`
+    });
+    await glm.disconnect();
+    history.push({
+        "time": new Date(),
+        "info": "glmDisconnected",
+        "extra": `Disconnected from yagna`
+    });
+
+    console.log("History (summary):");
+    let startDate = history[0].time;
+    for (let i = 0; i < history.length; i++) {
+        let elapsed = history[i].time - startDate;
+        let elapsedSeconds = elapsed / 1000.0;
+        console.log(`${i}: ${elapsedSeconds}s ${convertTimeStamp(history[i].time)} - ${history[i].info} - ${history[i].extra}`);
+    }
+
+    if (expectedScriptResults.includes("terminated-early")) {
+        let indexOfAgreementTerminated = history.findIndex((item) => item.info === "agreementTerminated");
+        let indexOfScriptError = history.findIndex((item) => item.info === "error");
+        if (indexOfAgreementTerminated === -1) {
+            console.error("Expected agreement termination not found in history");
+            throw "Expected agreement termination not found in history";
+        }
+        if (indexOfScriptError === -1) {
+            console.error("Expected script error not found in history");
+            throw "Expected script error not found in history";
+        }
+        if (indexOfAgreementTerminated < indexOfScriptError) {
+            console.error("Agreement was terminated before script error");
+            throw "Agreement was terminated before script error";
+        }
+        console.log("Agreement was terminated before script error - that is expected");
+    }
+    if (jobFinishedSuccessfully) {
+        if (!expectedScriptResults.includes("success")) {
+            throw "Job succeeded but it was expected to fail";
+        }
+    } else {
+        if (!expectedScriptResults.includes("failure")) {
             throw "Job failed but it was expected to succeed";
-        }
-    } finally {
-        history.push({
-            "time": new Date(),
-            "info": "glmDisconnecting",
-            "extra": `Disconnecting from yagna`
-        });
-        await glm.disconnect();
-        history.push({
-            "time": new Date(),
-            "info": "glmDisconnected",
-            "extra": `Disconnected from yagna`
-        });
-
-        console.log("History (summary):");
-        let startDate = history[0].time;
-        for (let i = 0; i < history.length; i++) {
-            let elapsed = history[i].time - startDate;
-            let elapsedSeconds = elapsed / 1000.0;
-            console.log(`${i}: ${elapsedSeconds}s ${convertTimeStamp(history[i].time)} - ${history[i].info} - ${history[i].extra}`);
-        }
-
-        if (expectedScriptResult.includes("terminated-early")) {
-            let indexOfAgreementTerminated = history.findIndex((item) => item.info === "agreementTerminated");
-            let indexOfScriptError = history.findIndex((item) => item.info === "error");
-            if (indexOfAgreementTerminated === -1) {
-                console.error("Expected agreement termination not found in history");
-                throw "Expected agreement termination not found in history";
-            }
-            if (indexOfScriptError === -1) {
-                console.error("Expected script error not found in history");
-                throw "Expected script error not found in history";
-            }
-            if (indexOfAgreementTerminated < indexOfScriptError) {
-                console.error("Agreement was terminated before script error");
-                throw "Agreement was terminated before script error";
-            }
-            console.log("Agreement was terminated before script error - that is expected");
         }
     }
 }
