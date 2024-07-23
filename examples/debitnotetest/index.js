@@ -235,6 +235,44 @@ async function connectAndRun(glm) {
     await rental.stopAndFinalize();
 }
 
+function displayHistorySummary() {
+    console.log("History (summary):");
+    let startDate = history[0].time;
+    for (let i = 0; i < history.length; i++) {
+        let elapsed = history[i].time - startDate;
+        let elapsedSeconds = elapsed / 1000.0;
+        console.log(`${i}: ${elapsedSeconds}s ${convertTimeStamp(history[i].time)} - ${history[i].info} - ${history[i].extra}`);
+    }
+}
+
+function checkResults(jobFinishedSuccessfully) {
+    if (expectedScriptResults.includes("terminated-early")) {
+        let indexOfAgreementTerminated = history.findIndex((item) => item.info === "agreementTerminated");
+        let indexOfScriptError = history.findIndex((item) => item.info === "error");
+        if (indexOfAgreementTerminated === -1) {
+            console.error("Expected agreement termination not found in history");
+            throw "Expected agreement termination not found in history";
+        }
+        if (indexOfScriptError === -1) {
+            console.error("Expected script error not found in history");
+            throw "Expected script error not found in history";
+        }
+        if (indexOfAgreementTerminated < indexOfScriptError) {
+            console.error("Agreement was terminated before script error");
+            throw "Agreement was terminated before script error";
+        }
+        console.log("Agreement was terminated before script error - that is expected");
+    }
+    if (jobFinishedSuccessfully) {
+        if (!expectedScriptResults.includes("success")) {
+            throw "Job succeeded but it was expected to fail";
+        }
+    } else {
+        if (!expectedScriptResults.includes("failure")) {
+            throw "Job failed but it was expected to succeed";
+        }
+    }
+}
 
 async function main() {
     const glm = new GolemNetwork({
@@ -270,40 +308,8 @@ async function main() {
         "extra": `Disconnected from yagna`
     });
 
-    console.log("History (summary):");
-    let startDate = history[0].time;
-    for (let i = 0; i < history.length; i++) {
-        let elapsed = history[i].time - startDate;
-        let elapsedSeconds = elapsed / 1000.0;
-        console.log(`${i}: ${elapsedSeconds}s ${convertTimeStamp(history[i].time)} - ${history[i].info} - ${history[i].extra}`);
-    }
-
-    if (expectedScriptResults.includes("terminated-early")) {
-        let indexOfAgreementTerminated = history.findIndex((item) => item.info === "agreementTerminated");
-        let indexOfScriptError = history.findIndex((item) => item.info === "error");
-        if (indexOfAgreementTerminated === -1) {
-            console.error("Expected agreement termination not found in history");
-            throw "Expected agreement termination not found in history";
-        }
-        if (indexOfScriptError === -1) {
-            console.error("Expected script error not found in history");
-            throw "Expected script error not found in history";
-        }
-        if (indexOfAgreementTerminated < indexOfScriptError) {
-            console.error("Agreement was terminated before script error");
-            throw "Agreement was terminated before script error";
-        }
-        console.log("Agreement was terminated before script error - that is expected");
-    }
-    if (jobFinishedSuccessfully) {
-        if (!expectedScriptResults.includes("success")) {
-            throw "Job succeeded but it was expected to fail";
-        }
-    } else {
-        if (!expectedScriptResults.includes("failure")) {
-            throw "Job failed but it was expected to succeed";
-        }
-    }
+    displayHistorySummary();
+    checkResults(jobFinishedSuccessfully);
 }
 
 main().then(() => {
