@@ -219,26 +219,18 @@ async function main() {
             exe.provider.name
         );
 
-        await exe.run("sleep 30");
-        console.log("Step 1 finished");
-        await exe.run("sleep 30");
-        console.log("Step 2 finished");
-        await exe.run("sleep 30");
-        console.log("Step 3 finished");
-        await exe.run("sleep 30");
-        console.log("Step 4 finished");
-        await exe.run("sleep 30");
-        console.log("Step 5 finished");
-        await exe.run("sleep 30");
-        console.log("Step 6 finished");
-        await exe.run("sleep 30");
-        console.log("Step 7 finished");
-        await exe.run("sleep 30");
-        console.log("Step 8 finished");
-        await exe.run("sleep 30");
-        console.log("Step 9 finished");
-        await exe.run("sleep 30");
-        console.log("Step 10 finished");
+        let stepNo = 0;
+        let numberOfRuns = 10;
+        while (stepNo < numberOfRuns) {
+            await exe.run("sleep 30");
+            console.log(`Step ${stepNo} finished`);
+            history.push({
+                "time": new Date(),
+                "info": "stepFinished",
+                "extra": `Step ${stepNo} finished`
+            });
+            stepNo += 1;
+        }
 
         console.log(
             "Finished testing on provider %s",
