@@ -82,6 +82,157 @@ const order = {
     },
 };
 
+
+async function connectAndRun() {
+    await glm.connect();
+    history.push({
+        "time": new Date(),
+        "info": "glmConnected",
+        "extra": `Connected to yagna with app key ${appKey} and subnet tag ${subnetTag}`
+    });
+
+    glm.market.events.on("agreementApproved", (event) => {
+        history.push({
+            "time": new Date(),
+            "info": "agreementApproved",
+            "extra": `Approved agreement ${event.agreement.id}`
+        });
+        console.log(
+            "agreementApproved",
+            "AT:",
+            event.agreement.model.offer.properties[
+                "golem.com.payment.debit-notes.accept-timeout?"
+                ],
+            "DNI:",
+            event.agreement.model.offer.properties[
+                "golem.com.scheme.payu.debit-note.interval-sec?"
+                ],
+            "PT:",
+            event.agreement.model.offer.properties[
+                "golem.com.scheme.payu.payment-timeout-sec?"
+                ]
+        );
+    });
+    glm.market.events.on("agreementTerminated", (event) => {
+        history.push({
+            "time": new Date(),
+            "info": "agreementTerminated",
+            "extra": `Terminated agreement ${event.agreement.id}`
+        });
+        console.log("agreementTerminated", event.agreement.id);
+    });
+    glm.market.events.on("offerProposalReceived", (event) => {
+        if (!proposalDisplayed || nodeID == event.offerProposal.provider.id)
+            console.log(
+                "offerProposalReceived",
+                "AT:",
+                event.offerProposal.properties[
+                    "golem.com.payment.debit-notes.accept-timeout?"
+                    ],
+                "DNI:",
+                event.offerProposal.properties[
+                    "golem.com.scheme.payu.debit-note.interval-sec?"
+                    ],
+                "PT:",
+                event.offerProposal.properties[
+                    "golem.com.scheme.payu.payment-timeout-sec?"
+                    ]
+            );
+        nodeID = event.offerProposal.provider.id;
+        //.log(nodeID);
+
+        proposalDisplayed = true;
+    });
+
+    glm.payment.events.on("debitNoteReceived", (event) => {
+        history.push({
+            "time": new Date(),
+            "info": "debitNoteReceived",
+            "extra": `Received debit note ${event.debitNote.id.slice(0, 8)}...`
+        });
+
+
+        console.log(
+            "debitNoteReceived",
+            event.debitNote.id.slice(0, 8),
+            event.debitNote.model.timestamp,
+            event.debitNote.model.paymentDueDate,
+            event.debitNote.model.totalAmountDue,
+            event.debitNote.model.usageCounterVector
+        );
+    });
+    glm.payment.events.on("debitNoteAccepted", (event) => {
+        history.push({
+            "time": new Date(),
+            "info": "debitNoteAccepted",
+            "extra": `Accepted debit note ${event.debitNote.id.slice(0, 8)}`
+        });
+
+        console.log(
+            "debitNoteAccepted",
+            event.debitNote.id.slice(0, 8),
+            event.debitNote.model.timestamp,
+            event.debitNote.model.paymentDueDate,
+            event.debitNote.model.totalAmountDue,
+            event.debitNote.model.usageCounterVector
+        );
+    });
+    glm.payment.events.on("debitNoteRejected", (event) => {
+        history.push({
+            "time": new Date(),
+            "info": "debitNoteRejected",
+            "extra": `Rejected debit note ${event.debitNote.id.slice(0, 8)}`
+        });
+
+        console.log("debitNoteRejected", event);
+    });
+    glm.payment.events.on("errorAcceptingDebitNote", (event) => {
+        console.log("errorAcceptingDebitNote", event);
+    });
+    glm.payment.events.on("errorRejectingDebitNote", (event) => {
+        console.log(
+            "errorRejectingDebitNote",
+            event.debitNote.id.slice(0, 8),
+            event.debitNote.model.timestamp,
+            event.debitNote.model.paymentDueDate,
+            event.debitNote.model.totalAmountDue,
+            event.debitNote.model.usageCounterVector
+        );
+    });
+
+    const rental = await glm.oneOf({order});
+
+    const exe = await rental.getExeUnit();
+    console.log(`Got exeUnit: ${getTimeStamp()}`);
+
+    await exe.run("echo Hello, Golem!");
+
+    console.log(
+        "Started testing provider %s",
+        exe.provider.name
+    );
+
+    let stepNo = 0;
+    let numberOfRuns = 10;
+    while (stepNo < numberOfRuns) {
+        await exe.run("sleep 30");
+        console.log(`Step ${stepNo} finished`);
+        history.push({
+            "time": new Date(),
+            "info": "stepFinished",
+            "extra": `Step ${stepNo} finished`
+        });
+        stepNo += 1;
+    }
+
+    console.log(
+        "Finished testing on provider %s",
+        exe.provider.name
+    );
+    await rental.stopAndFinalize();
+}
+
+
 async function main() {
     const glm = new GolemNetwork({
         logger: pinoPrettyLogger({
@@ -90,160 +241,19 @@ async function main() {
         api: {key: appKey},
     });
 
+    let jobFinishedSuccessfully = null;
     try {
-        await glm.connect();
-        history.push({
-            "time": new Date(),
-            "info": "glmConnected",
-            "extra": `Connected to yagna with app key ${appKey} and subnet tag ${subnetTag}`
-        });
-
-        glm.market.events.on("agreementApproved", (event) => {
-            history.push({
-                "time": new Date(),
-                "info": "agreementApproved",
-                "extra": `Approved agreement ${event.agreement.id}`
-            });
-            console.log(
-                "agreementApproved",
-                "AT:",
-                event.agreement.model.offer.properties[
-                    "golem.com.payment.debit-notes.accept-timeout?"
-                    ],
-                "DNI:",
-                event.agreement.model.offer.properties[
-                    "golem.com.scheme.payu.debit-note.interval-sec?"
-                    ],
-                "PT:",
-                event.agreement.model.offer.properties[
-                    "golem.com.scheme.payu.payment-timeout-sec?"
-                    ]
-            );
-        });
-        glm.market.events.on("agreementTerminated", (event) => {
-            history.push({
-                "time": new Date(),
-                "info": "agreementTerminated",
-                "extra": `Terminated agreement ${event.agreement.id}`
-            });
-            console.log("agreementTerminated", event.agreement.id);
-        });
-        glm.market.events.on("offerProposalReceived", (event) => {
-            if (!proposalDisplayed || nodeID == event.offerProposal.provider.id)
-                console.log(
-                    "offerProposalReceived",
-                    "AT:",
-                    event.offerProposal.properties[
-                        "golem.com.payment.debit-notes.accept-timeout?"
-                        ],
-                    "DNI:",
-                    event.offerProposal.properties[
-                        "golem.com.scheme.payu.debit-note.interval-sec?"
-                        ],
-                    "PT:",
-                    event.offerProposal.properties[
-                        "golem.com.scheme.payu.payment-timeout-sec?"
-                        ]
-                );
-            nodeID = event.offerProposal.provider.id;
-            //.log(nodeID);
-
-            proposalDisplayed = true;
-        });
-
-        glm.payment.events.on("debitNoteReceived", (event) => {
-            history.push({
-                "time": new Date(),
-                "info": "debitNoteReceived",
-                "extra": `Received debit note ${event.debitNote.id.slice(0, 8)}...`
-            });
-
-
-            console.log(
-                "debitNoteReceived",
-                event.debitNote.id.slice(0, 8),
-                event.debitNote.model.timestamp,
-                event.debitNote.model.paymentDueDate,
-                event.debitNote.model.totalAmountDue,
-                event.debitNote.model.usageCounterVector
-            );
-        });
-        glm.payment.events.on("debitNoteAccepted", (event) => {
-            history.push({
-                "time": new Date(),
-                "info": "debitNoteAccepted",
-                "extra": `Accepted debit note ${event.debitNote.id.slice(0, 8)}`
-            });
-
-            console.log(
-                "debitNoteAccepted",
-                event.debitNote.id.slice(0, 8),
-                event.debitNote.model.timestamp,
-                event.debitNote.model.paymentDueDate,
-                event.debitNote.model.totalAmountDue,
-                event.debitNote.model.usageCounterVector
-            );
-        });
-        glm.payment.events.on("debitNoteRejected", (event) => {
-            history.push({
-                "time": new Date(),
-                "info": "debitNoteRejected",
-                "extra": `Rejected debit note ${event.debitNote.id.slice(0, 8)}`
-            });
-
-            console.log("debitNoteRejected", event);
-        });
-        glm.payment.events.on("errorAcceptingDebitNote", (event) => {
-            console.log("errorAcceptingDebitNote", event);
-        });
-        glm.payment.events.on("errorRejectingDebitNote", (event) => {
-            console.log(
-                "errorRejectingDebitNote",
-                event.debitNote.id.slice(0, 8),
-                event.debitNote.model.timestamp,
-                event.debitNote.model.paymentDueDate,
-                event.debitNote.model.totalAmountDue,
-                event.debitNote.model.usageCounterVector
-            );
-        });
-
-        const rental = await glm.oneOf({order});
-
-        const exe = await rental.getExeUnit();
-        console.log(`Got exeUnit: ${getTimeStamp()}`);
-
-        await exe.run("echo Hello, Golem!");
-
-        console.log(
-            "Started testing provider %s",
-            exe.provider.name
-        );
-
-        let stepNo = 0;
-        let numberOfRuns = 10;
-        while (stepNo < numberOfRuns) {
-            await exe.run("sleep 30");
-            console.log(`Step ${stepNo} finished`);
-            history.push({
-                "time": new Date(),
-                "info": "stepFinished",
-                "extra": `Step ${stepNo} finished`
-            });
-            stepNo += 1;
-        }
-
-        console.log(
-            "Finished testing on provider %s",
-            exe.provider.name
-        );
-        await rental.stopAndFinalize();
+        await connectAndRun();
+        jobFinishedSuccessfully = true;
     } catch (err) {
+        jobFinishedSuccessfully = false;
         history.push({
             "time": new Date(),
             "info": "error",
             "extra": `Script error: ${err}`
         });
         console.error("Failed to run the example", err);
+        throw err;
     } finally {
         history.push({
             "time": new Date(),
