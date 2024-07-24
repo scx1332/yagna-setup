@@ -47,7 +47,7 @@ jobs:
           cd examples
           git clone https://github.com/golemfactory/golem-js.git
           cd golem-js
-          git checkout 64284a7a264dcc9adde720d222d124e303fd6c3f
+          git checkout 87dea34fb73f1b0ad4391ea8ea8ae9141697864a
           npm install
           npm run build
 
