@@ -72,7 +72,7 @@ yagna 0.16.0+nightly (c2d09bb0 2024-07-09)
 5 Setting the test environment.
 
 The environment will consist of a single provider and a single requestor.
-The concept is based the on:
+The concept is based on the:
 Golem tools use the .env file in the `pwd` folder to read the configuration.
 The `binaries` directory is before other Yagna locations in the PATH. 
 The requestor will use default ports so you can use SDKs without additional setup.
@@ -94,6 +94,8 @@ rm -fr /path/to/the /file.
 
 Add the `binaries` to the PATH. To avoid manually configuring the path in each terminal window add in .bashrc:
 PATH=$PATH:/path/to/binaries
+
+Note, you need to close the terminal and reopen or run `source ~/.bashrc`.
 
 After the next login, you should be able to run yagna components located in ./binaries.
 
