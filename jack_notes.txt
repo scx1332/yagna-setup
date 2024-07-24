@@ -9,6 +9,11 @@ Cloning Golem repos
 Building components
 Setting the test environment
 
+0. Prerequisites:
+- system with Ubuntu (tested on 22.04 LTS)
+- git installed
+- docker installed
+
 1. Preparation:
 Clone this repo. Scripts were tested on Ubuntu.
 ```
