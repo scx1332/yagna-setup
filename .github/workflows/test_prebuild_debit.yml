@@ -16,12 +16,12 @@ jobs:
             interval: 50
             notes_lost: "1"
             expected_script_result: "success"
-          - id: 0
+          - id: 1
             timeout: 55
             interval: 15
             notes_lost: "2;3"
             expected_script_result: "failure;terminated-early"
-          - id: 1
+          - id: 2
             timeout: 60
             interval: 20
             notes_lost: "-1"
@@ -41,15 +41,6 @@ jobs:
           sudo mkdir -p /usr/lib/yagna
           sudo mv golem/downloaded/plugins /usr/lib/yagna/plugins
           sudo mv golem/downloaded/* /usr/bin/ 
-
-      #- name: Install golem-js
-      #  run: |
-      #    cd examples
-      #    git clone https://github.com/golemfactory/golem-js.git
-      #    cd golem-js
-      #    # git checkout 87dea34fb73f1b0ad4391ea8ea8ae9141697864a
-      #    npm install
-      #    npm run build
 
       - name: Test binaries
         run: |
@@ -124,20 +115,24 @@ jobs:
           EXPECTED_SCRIPT_RESULT: ${{ matrix.expected_script_result }}
 
       - name: Stop requestor
+        if: always()
         run: |
           cd golem/requestor
           yagna service shutdown
 
       - name: Stop provider
+        if: always()
         run: |
           cd golem/provider_0
           yagna service shutdown
 
       - name: Prepare logs
+        if: always()
         run: |
           tar --zstd -cf data_${{ matrix.id }}.tar.zst examples/debitnotetest/log golem/requestor/yagnadir golem/provider_0/providerdir golem/provider_0/yagnadir
 
       - name: Upload logs
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: data_${{ matrix.id }}.tar.zst
