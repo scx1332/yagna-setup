@@ -19,23 +19,31 @@ debitNotesLost.split(";").forEach((item) => {
 console.log(`Lost debit notes used in example: ${lostDebitNotes}`);
 console.log(`Expected script results array: [${expectedScriptResults.join(" ")}]`);
 
-const myDebitNoteFilter = async (debitNote, _context) => {
-    let debitNo = debitNotesReceived.push(debitNote.id);
 
-    if (lostDebitNotes.includes(debitNo)) {
-        console.log(`delaying debit note no ${debitNo}`);
-        history.push({
-            "time": new Date(),
-            "info": "delayingDebitNote",
-            "extra": `Delaying debit note no ${debitNo}`
-        });
-        // Do not change message text,
-        // the value "ignore debit note" is captured by golem-js
-        throw "ignore debit note";
+import { PaymentModuleImpl } from "@golem-sdk/golem-js";
+
+let debitNo = 0;
+class MyPaymentModule extends PaymentModuleImpl {
+    async acceptDebitNote(
+        debitNote,
+        allocation,
+        amount
+    ) {
+        console.log("Hello from my custom implementation");
+
+        if (lostDebitNotes.includes(debitNo)) {
+            console.log(`ignoring debit note no ${debitNo}`);
+            history.push({
+                "time": new Date(),
+                "info": "delayingDebitNote",
+                "extra": `Delaying debit note no ${debitNo}`
+            });
+            //ignore debit note
+            return debitNote;
+        }
+        return super.acceptDebitNote(debitNote, allocation, amount);
     }
-    return true;
-};
-
+}
 
 function convertTimeStamp(date) {
     return (
@@ -79,9 +87,6 @@ const order = {
     activity: {
         activityExeBatchResultPollIntervalSeconds: 10,
         activityExeBatchResultMaxRetries: 20,
-    },
-    payment: {
-        debitNoteFilter: myDebitNoteFilter,
     },
 };
 
@@ -282,6 +287,9 @@ async function main() {
             level: "info",
         }),
         api: {key: appKey},
+        override: {
+            payment: MyPaymentModule,
+        },
     });
 
     let jobFinishedSuccessfully;
