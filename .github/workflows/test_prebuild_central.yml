@@ -2,6 +2,12 @@ name: Test central public
 on:
   schedule:
     - cron: '0 0 * * *'
+  workflow_dispatch:
+    inputs:
+      empty:
+        description: 'Empty option'
+        required: true
+        default: 'Not used'
 
 jobs:
   test:
@@ -29,7 +35,7 @@ jobs:
         run: |
           sudo mkdir -p /usr/lib/yagna
           sudo mv golem/downloaded/plugins /usr/lib/yagna/plugins
-          sudo mv golem/downloaded/* /usr/bin/
+          sudo mv golem/downloaded/* /usr/bin/ 
 
       - name: Test binaries
         run: |
@@ -49,6 +55,8 @@ jobs:
           cd golem/requestor
           cat .env
           yagna service run&
+          sleep 4
+          env > yagnadir/env.log
 
       - name: Run provider
         run: |
@@ -60,6 +68,8 @@ jobs:
           sleep 6
           ya-provider run&
           sleep 4
+          env > yagnadir/env.log
+          env > providerdir/env.log
         env:
           YA_CONSENT_INTERNAL: "allow"
           YA_CONSENT_EXTERNAL: "allow"
