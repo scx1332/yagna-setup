@@ -29,8 +29,7 @@ class MyPaymentModule extends PaymentModuleImpl {
         allocation,
         amount
     ) {
-        console.log("Hello from my custom implementation");
-
+        debitNo += 1;
         if (lostDebitNotes.includes(debitNo)) {
             console.log(`ignoring debit note no ${debitNo}`);
             history.push({
