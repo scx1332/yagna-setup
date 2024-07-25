@@ -10,7 +10,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        no: [ 0, 1, 2 ]
+        include:
+          - id: 0
+          - id: 1
+          - id: 2
+
     timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
@@ -63,6 +67,8 @@ jobs:
           sleep 6
           ya-provider run&
           sleep 4
+          env > yagnadir/env.log
+          env > providerdir/env.log
         env:
           YA_CONSENT_INTERNAL: "allow"
           YA_CONSENT_EXTERNAL: "allow"
@@ -99,4 +105,27 @@ jobs:
           YAGNA_APPKEY: 66iiOdkvV29
 
 
+      - name: Stop requestor
+        if: always()
+        run: |
+          cd golem/requestor
+          yagna service shutdown
+
+      - name: Stop provider
+        if: always()
+        run: |
+          cd golem/provider_0
+          yagna service shutdown
+
+      - name: Prepare logs
+        if: always()
+        run: |
+          tar --zstd -cf data_${{ matrix.id }}.tar.zst golem/requestor/yagnadir golem/provider_0/providerdir golem/provider_0/yagnadir
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: data_${{ matrix.id }}.tar.zst
+          path: data_${{ matrix.id }}.tar.zst
 

@@ -7,30 +7,60 @@ let nodeID = "";
 
 const debitNotesReceived = [];
 
+const history = [];
 
-const lostDebitNotes = [2, 3];
+const lostDebitNotes = [];
+const debitNotesLost = process.env.DEBIT_NOTES_LOST || "-1";
+let expectedScriptResults = (process.env.EXPECTED_SCRIPT_RESULT || "success").split(";");
 
-const myDebitNoteFilter = async (debitNote, context) => {
-    let debitNo = debitNotesReceived.push(debitNote.id);
+debitNotesLost.split(";").forEach((item) => {
+    lostDebitNotes.push(parseInt(item));
+})
+console.log(`Lost debit notes used in example: ${lostDebitNotes}`);
+console.log(`Expected script results array: [${expectedScriptResults.join(" ")}]`);
 
-    if (lostDebitNotes.includes(debitNo)) {
-        console.log(`delaying debit note no ${debitNo}`);
-        await new Promise((res) => setTimeout(res, 130 * 1000));
-        return true;
+
+import { PaymentModuleImpl } from "@golem-sdk/golem-js";
+
+let debitNo = 0;
+class MyPaymentModule extends PaymentModuleImpl {
+    async acceptDebitNote(
+        debitNote,
+        allocation,
+        amount
+    ) {
+        debitNo += 1;
+        if (lostDebitNotes.includes(debitNo)) {
+            console.log(`ignoring debit note no ${debitNo}`);
+            history.push({
+                "time": new Date(),
+                "info": "delayingDebitNote",
+                "extra": `Delaying debit note no ${debitNo}`
+            });
+            //ignore debit note
+            return debitNote;
+        }
+        return super.acceptDebitNote(debitNote, allocation, amount);
     }
-    return true;
-};
+}
 
-const getTimeStamp = () => {
+function convertTimeStamp(date) {
     return (
-        "[" + new Date().toISOString().split("T").pop().split("Z").shift() + "]"
+        "[" + date.toISOString().split("T").pop().split("Z").shift() + "]"
     );
-};
+}
+
+function getTimeStamp() {
+    return convertTimeStamp(new Date());
+}
+
+
 const myProposalFilter = (proposal) =>
-    Boolean(proposal.provider.name.indexOf("testnet") == -1);
+    Boolean(proposal.provider.name.indexOf("testnet") === -1);
 
 const subnetTag = process.env.YAGNA_SUBNET || "public";
 const appKey = process.env.YAGNA_APPKEY || "66iiOdkvV29";
+
 const debitNoteTimeout = parseInt(process.env.DEBIT_NOTE_TIMEOUT || "10");
 const debitNoteInterval = parseInt(process.env.DEBIT_NOTE_INTERVAL || "15");
 const order = {
@@ -57,143 +87,243 @@ const order = {
         activityExeBatchResultPollIntervalSeconds: 10,
         activityExeBatchResultMaxRetries: 20,
     },
-    payment: {
-        debitNoteFilter: myDebitNoteFilter,
-    },
 };
 
-(async () => {
+
+async function connectAndRun(glm) {
+    await glm.connect();
+    history.push({
+        "time": new Date(),
+        "info": "glmConnected",
+        "extra": `Connected to yagna with app key ${appKey} and subnet tag ${subnetTag}`
+    });
+
+    glm.market.events.on("agreementApproved", (event) => {
+        history.push({
+            "time": new Date(),
+            "info": "agreementApproved",
+            "extra": `Approved agreement ${event.agreement.id}`
+        });
+        console.log(
+            "agreementApproved",
+            "AT:",
+            event.agreement.model.offer.properties[
+                "golem.com.payment.debit-notes.accept-timeout?"
+                ],
+            "DNI:",
+            event.agreement.model.offer.properties[
+                "golem.com.scheme.payu.debit-note.interval-sec?"
+                ],
+            "PT:",
+            event.agreement.model.offer.properties[
+                "golem.com.scheme.payu.payment-timeout-sec?"
+                ]
+        );
+    });
+    glm.market.events.on("agreementTerminated", (event) => {
+        history.push({
+            "time": new Date(),
+            "info": "agreementTerminated",
+            "extra": `Terminated agreement ${event.agreement.id}`
+        });
+        console.log("agreementTerminated", event.agreement.id);
+    });
+    glm.market.events.on("offerProposalReceived", (event) => {
+        if (!proposalDisplayed || nodeID === event.offerProposal.provider.id)
+            console.log(
+                "offerProposalReceived",
+                "AT:",
+                event.offerProposal.properties[
+                    "golem.com.payment.debit-notes.accept-timeout?"
+                    ],
+                "DNI:",
+                event.offerProposal.properties[
+                    "golem.com.scheme.payu.debit-note.interval-sec?"
+                    ],
+                "PT:",
+                event.offerProposal.properties[
+                    "golem.com.scheme.payu.payment-timeout-sec?"
+                    ]
+            );
+        nodeID = event.offerProposal.provider.id;
+        //.log(nodeID);
+
+        proposalDisplayed = true;
+    });
+
+    glm.payment.events.on("debitNoteReceived", (event) => {
+        history.push({
+            "time": new Date(),
+            "info": "debitNoteReceived",
+            "extra": `Received debit note ${event.debitNote.id.slice(0, 8)}...`
+        });
+
+
+        console.log(
+            "debitNoteReceived",
+            event.debitNote.id.slice(0, 8),
+            event.debitNote.model.timestamp,
+            event.debitNote.model.paymentDueDate,
+            event.debitNote.model.totalAmountDue,
+            event.debitNote.model.usageCounterVector
+        );
+    });
+    glm.payment.events.on("debitNoteAccepted", (event) => {
+        history.push({
+            "time": new Date(),
+            "info": "debitNoteAccepted",
+            "extra": `Accepted debit note ${event.debitNote.id.slice(0, 8)}`
+        });
+
+        console.log(
+            "debitNoteAccepted",
+            event.debitNote.id.slice(0, 8),
+            event.debitNote.model.timestamp,
+            event.debitNote.model.paymentDueDate,
+            event.debitNote.model.totalAmountDue,
+            event.debitNote.model.usageCounterVector
+        );
+    });
+    glm.payment.events.on("debitNoteRejected", (event) => {
+        history.push({
+            "time": new Date(),
+            "info": "debitNoteRejected",
+            "extra": `Rejected debit note ${event.debitNote.id.slice(0, 8)}`
+        });
+
+        console.log("debitNoteRejected", event);
+    });
+    glm.payment.events.on("errorAcceptingDebitNote", (event) => {
+        console.log("errorAcceptingDebitNote", event);
+    });
+    glm.payment.events.on("errorRejectingDebitNote", (event) => {
+        console.log(
+            "errorRejectingDebitNote",
+            event.debitNote.id.slice(0, 8),
+            event.debitNote.model.timestamp,
+            event.debitNote.model.paymentDueDate,
+            event.debitNote.model.totalAmountDue,
+            event.debitNote.model.usageCounterVector
+        );
+    });
+
+    const rental = await glm.oneOf({order});
+
+    const exe = await rental.getExeUnit();
+    console.log(`Got exeUnit: ${getTimeStamp()}`);
+
+    await exe.run("echo Hello, Golem!");
+
+    console.log(
+        "Started testing provider %s",
+        exe.provider.name
+    );
+
+    let stepNo = 0;
+    let numberOfRuns = 10;
+    while (stepNo < numberOfRuns) {
+        await exe.run("sleep 30");
+        console.log(`Step ${stepNo} finished`);
+        history.push({
+            "time": new Date(),
+            "info": "stepFinished",
+            "extra": `Step ${stepNo} finished`
+        });
+        stepNo += 1;
+    }
+
+    console.log(
+        "Finished testing on provider %s",
+        exe.provider.name
+    );
+    await rental.stopAndFinalize();
+}
+
+function displayHistorySummary() {
+    console.log("History (summary):");
+    let startDate = history[0].time;
+    for (let i = 0; i < history.length; i++) {
+        let elapsed = history[i].time - startDate;
+        let elapsedSeconds = elapsed / 1000.0;
+        console.log(`${i}: ${elapsedSeconds}s ${convertTimeStamp(history[i].time)} - ${history[i].info} - ${history[i].extra}`);
+    }
+}
+
+function checkResults(jobFinishedSuccessfully) {
+    if (expectedScriptResults.includes("terminated-early")) {
+        let indexOfAgreementTerminated = history.findIndex((item) => item.info === "agreementTerminated");
+        let indexOfScriptError = history.findIndex((item) => item.info === "error");
+
+        console.log(`indexOfAgreementTerminated: ${indexOfAgreementTerminated}, indexOfScriptError: ${indexOfScriptError}`);
+        if (indexOfAgreementTerminated === -1) {
+            console.error("Expected agreement termination not found in history");
+            throw "Expected agreement termination not found in history";
+        }
+        if (indexOfScriptError === -1) {
+            console.error("Expected script error not found in history");
+            throw "Expected script error not found in history";
+        }
+        if (indexOfAgreementTerminated > indexOfScriptError) {
+            console.error("Agreement was terminated before script error");
+            throw "Agreement was terminated before script error";
+        }
+        console.log("OK - Agreement was terminated before script error - that is expected");
+    }
+    if (jobFinishedSuccessfully) {
+        if (!expectedScriptResults.includes("success")) {
+            throw "Job succeeded but it was expected to fail";
+        }
+    } else {
+        if (!expectedScriptResults.includes("failure")) {
+            throw "Job failed but it was expected to succeed";
+        }
+    }
+}
+
+async function main() {
     const glm = new GolemNetwork({
         logger: pinoPrettyLogger({
             level: "info",
         }),
         api: {key: appKey},
+        override: {
+            payment: MyPaymentModule,
+        },
     });
 
+    let jobFinishedSuccessfully;
     try {
-        await glm.connect();
-
-        glm.market.events.on("agreementApproved", (event) => {
-            console.log(
-                "agreementApproved",
-                "AT:",
-                event.agreement.model.offer.properties[
-                    "golem.com.payment.debit-notes.accept-timeout?"
-                    ],
-                "DNI:",
-                event.agreement.model.offer.properties[
-                    "golem.com.scheme.payu.debit-note.interval-sec?"
-                    ],
-                "PT:",
-                event.agreement.model.offer.properties[
-                    "golem.com.scheme.payu.payment-timeout-sec?"
-                    ]
-            );
-        });
-        glm.market.events.on("agreementTerminated", (event) => {
-            console.log("agreementTerminated", event.agreement.id);
-        });
-        glm.market.events.on("offerProposalReceived", (event) => {
-            if (!proposalDisplayed || nodeID == event.offerProposal.provider.id)
-                console.log(
-                    "offerProposalReceived",
-                    "AT:",
-                    event.offerProposal.properties[
-                        "golem.com.payment.debit-notes.accept-timeout?"
-                        ],
-                    "DNI:",
-                    event.offerProposal.properties[
-                        "golem.com.scheme.payu.debit-note.interval-sec?"
-                        ],
-                    "PT:",
-                    event.offerProposal.properties[
-                        "golem.com.scheme.payu.payment-timeout-sec?"
-                        ]
-                );
-            nodeID = event.offerProposal.provider.id;
-            //.log(nodeID);
-
-            proposalDisplayed = true;
-        });
-
-        glm.payment.events.on("debitNoteReceived", (event) => {
-            console.log(
-                "debitNoteReceived",
-                event.debitNote.id,
-                event.debitNote.model.timestamp,
-                event.debitNote.model.paymentDueDate,
-                event.debitNote.model.totalAmountDue,
-                event.debitNote.model.usageCounterVector
-            );
-        });
-        glm.payment.events.on("debitNoteAccepted", (event) => {
-            console.log(
-                "debitNoteAccepted",
-                event.debitNote.id,
-                event.debitNote.model.timestamp,
-                event.debitNote.model.paymentDueDate,
-                event.debitNote.model.totalAmountDue,
-                event.debitNote.model.usageCounterVector
-            );
-        });
-        glm.payment.events.on("debitNoteRejected", (event) => {
-            console.log("debitNoteRejected", event);
-        });
-        glm.payment.events.on("errorAcceptingDebitNote", (event) => {
-            console.log("errorAcceptingDebitNote", event);
-        });
-        glm.payment.events.on("errorRejectingDebitNote", (event) => {
-            console.log(
-                "errorRejectingDebitNote",
-                event.debitNote.id,
-                event.debitNote.model.timestamp,
-                event.debitNote.model.paymentDueDate,
-                event.debitNote.model.totalAmountDue,
-                event.debitNote.model.usageCounterVector
-            );
-        });
-
-        const rental = await glm.oneOf({order});
-
-        const exe = await rental.getExeUnit();
-        console.log(`Got exeUnit: ${getTimeStamp()}`);
-
-        await exe.run("echo Hello, Golem!");
-
-        console.log(
-            "Started testing provider %s",
-            exe.provider.name
-        );
-
-        await exe.run("sleep 30");
-        console.log("Step 1 finished");
-        await exe.run("sleep 30");
-        console.log("Step 2 finished");
-        await exe.run("sleep 30");
-        console.log("Step 3 finished");
-        await exe.run("sleep 30");
-        console.log("Step 4 finished");
-        await exe.run("sleep 30");
-        console.log("Step 5 finished");
-        await exe.run("sleep 30");
-        console.log("Step 6 finished");
-        await exe.run("sleep 30");
-        console.log("Step 7 finished");
-        await exe.run("sleep 30");
-        console.log("Step 8 finished");
-        await exe.run("sleep 30");
-        console.log("Step 9 finished");
-        await exe.run("sleep 30");
-        console.log("Step 10 finished");
-
-        console.log(
-            "Finished testing on provider %s",
-            exe.provider.name
-        );
-        await rental.stopAndFinalize();
+        await connectAndRun(glm);
+        jobFinishedSuccessfully = true;
     } catch (err) {
+        jobFinishedSuccessfully = false;
+        history.push({
+            "time": new Date(),
+            "info": "error",
+            "extra": `Script error: ${err}`
+        });
         console.error("Failed to run the example", err);
-    } finally {
-        await glm.disconnect();
     }
-})().catch(console.error);
+
+    history.push({
+        "time": new Date(),
+        "info": "glmDisconnecting",
+        "extra": `Disconnecting from yagna`
+    });
+    await glm.disconnect();
+    history.push({
+        "time": new Date(),
+        "info": "glmDisconnected",
+        "extra": `Disconnected from yagna`
+    });
+
+    displayHistorySummary();
+    checkResults(jobFinishedSuccessfully);
+}
+
+main().then(() => {
+    console.log("Example finished");
+}).catch((err) => {
+    console.error("Example failed", err);
+    process.exit(1);
+});

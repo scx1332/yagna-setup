@@ -10,15 +10,27 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        timeout: [ 10, 15, 20, 30 ]
-        interval: [ 15, 20 ]
+        include:
+          - id: 0
+            timeout: 110
+            interval: 50
+            notes_lost: "1"
+            expected_script_result: "success"
+          - id: 1
+            timeout: 55
+            interval: 15
+            notes_lost: "2;3"
+            expected_script_result: "failure;terminated-early"
+          - id: 2
+            timeout: 60
+            interval: 20
+            notes_lost: "-1"
+            expected_script_result: "success"
+
     timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install Poetry
-        run: curl -sSL https://install.python-poetry.org | python3 - --version 1.8.2
 
       - name: Download and install binaries
         run: |
@@ -28,7 +40,7 @@ jobs:
         run: |
           sudo mkdir -p /usr/lib/yagna
           sudo mv golem/downloaded/plugins /usr/lib/yagna/plugins
-          sudo mv golem/downloaded/* /usr/bin/
+          sudo mv golem/downloaded/* /usr/bin/ 
 
       - name: Test binaries
         run: |
@@ -53,6 +65,8 @@ jobs:
           cd golem/requestor
           cat .env
           yagna service run&
+          sleep 4
+          env > yagnadir/env.log
 
       - name: Run provider
         run: |
@@ -64,6 +78,8 @@ jobs:
           sleep 6
           ya-provider run&
           sleep 4
+          env > yagnadir/env.log
+          env > providerdir/env.log
         env:
           YA_CONSENT_INTERNAL: "allow"
           YA_CONSENT_EXTERNAL: "allow"
@@ -87,10 +103,37 @@ jobs:
       - name: Run jsexecutor example
         run: |
           cd examples/debitnotetest
-          npm install
-          npm run run
+          mkdir -p log
+          set -o pipefail
+          npm install | tee log/npm_install.log
+          npm run run | tee log/npm_run.log
+          env > log/env.log
         env:
           DEBIT_NOTE_TIMEOUT: ${{ matrix.timeout }}
           DEBIT_NOTE_INTERVAL: ${{ matrix.interval }}
+          DEBIT_NOTES_LOST: ${{ matrix.notes_lost }}
+          EXPECTED_SCRIPT_RESULT: ${{ matrix.expected_script_result }}
 
+      - name: Stop requestor
+        if: always()
+        run: |
+          cd golem/requestor
+          yagna service shutdown
 
+      - name: Stop provider
+        if: always()
+        run: |
+          cd golem/provider_0
+          yagna service shutdown
+
+      - name: Prepare logs
+        if: always()
+        run: |
+          tar --zstd -cf data_${{ matrix.id }}.tar.zst examples/debitnotetest/log golem/requestor/yagnadir golem/provider_0/providerdir golem/provider_0/yagnadir
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: data_${{ matrix.id }}.tar.zst
+          path: data_${{ matrix.id }}.tar.zst
