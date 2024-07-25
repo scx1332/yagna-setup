@@ -60,7 +60,7 @@ def gen_provider_env(provider_no):
     s += f"YA_PAYMENT_NETWORK={YA_PAYMENT_NETWORK}\n\n"
 
     s += f"YAGNA_DATADIR={PROVIDER_YAGNDA_DATADIR}\n"
-    s += f"YAGNA_PROVIDER_DATADIR={PROVIDER_PROVIDER_DATADIR}\n"
+    s += f"DATA_DIR={PROVIDER_PROVIDER_DATADIR}\n"
 
     port1 = 7540 + provider_no * 2
     port2 = 7541 + provider_no * 2
