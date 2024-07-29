@@ -13,7 +13,6 @@ Setting the test environment
 - system with Ubuntu (tested on 22.04 LTS)
 - git installed
 - docker installed
-- cargo installed
 
 1. Preparation:
 Clone this repo. Scripts were tested on Ubuntu.
